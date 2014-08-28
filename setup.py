@@ -22,7 +22,12 @@ setup(
     author_email='s.santi@trentorise.eu',
     description='',
     long_description=longdesc,
-    install_requires=[],
+    install_requires=[
+        'Flask',
+        'flask-restful',
+        'psycopg2',
+        'nicelog',
+    ],
     # tests_require=tests_require,
     # test_suite='tests',
     classifiers=[
