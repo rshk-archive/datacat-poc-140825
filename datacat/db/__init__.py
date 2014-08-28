@@ -14,6 +14,11 @@ def create_tables(conn):
     Create database schema for a given connection.
     """
 
+    conn.autocommit = True
+
+    # See this: http://stackoverflow.com/questions/18404055
+    # for creating indices on JSON field items
+
     with conn.cursor() as cur:
         cur.execute("""
         CREATE TABLE info (
@@ -35,9 +40,16 @@ def create_tables(conn):
 
 
 def drop_tables(conn):
+    conn.autocommit = True
+
     with conn.cursor() as cur:
         cur.execute("""
         DROP TABLE info;
         DROP TABLE dataset;
         DROP TABLE resource;
         """)
+
+
+def get_db():
+    from flask import current_app
+    return connect(**current_app.config['DATABASE'])

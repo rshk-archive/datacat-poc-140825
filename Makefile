@@ -39,7 +39,7 @@ check:
 test: check
 
 setup_tests:
-	pip install pytest pytest-pep8 pytest-cov
+	pip install pytest pytest-pep8 pytest-cov requests
 
 docs:
 	$(MAKE) -C docs html
