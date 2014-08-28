@@ -104,8 +104,8 @@ Each dataset is simply a json (yaml?) text file describing how to
 build the published dataset.
 
 - ``id``
-- ``conf``
-- ``conf_format`` - JSON / YAML
+- ``configuration``
+- ``configuration_format`` - JSON / YAML
 
 
 Background service
