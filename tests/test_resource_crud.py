@@ -33,3 +33,39 @@ def test_resource_crud(configured_app):
     assert resp.status_code == 200
     assert resp.data == DATA_PAYLOAD
     assert resp.headers['Content-type'] == 'application/json'
+
+    # ------------------------------------------------------------
+    # Update and make sure it is updated
+    # ------------------------------------------------------------
+
+    resp = apptc.put('/api/1/admin/resource/1',
+                     headers={'Content-type': 'text/plain'},
+                     data='HELLO WORLD')
+    assert resp.status_code == 200
+    assert resp.data == ''
+
+    resp = apptc.get('/api/1/admin/resource/1')
+    assert resp.status_code == 200
+    assert resp.data == 'HELLO WORLD'
+    assert resp.headers['Content-type'] == 'text/plain'
+
+    # ------------------------------------------------------------
+    # Delete and make sure it's gone
+    # ------------------------------------------------------------
+
+    resp = apptc.delete('/api/1/admin/resource/1')
+    assert resp.status_code == 200
+    assert resp.data == ''
+
+    resp = apptc.get('/api/1/admin/resource/1')
+    assert resp.status_code == 404
+
+
+def test_resource_error_404(configured_app):
+    apptc = configured_app.test_client()
+    resp = apptc.get('/api/1/admin/resource/12345')
+    assert resp.status_code == 404
+
+    apptc = configured_app.test_client()
+    resp = apptc.put('/api/1/admin/resource/12345', data='foobar')
+    assert resp.status_code == 404

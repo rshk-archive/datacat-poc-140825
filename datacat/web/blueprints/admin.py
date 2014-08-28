@@ -79,6 +79,9 @@ def get_resource_data(resource_id):
         """, dict(id=resource_id))
         resource = cur.fetchone()
 
+    if resource is None:
+        return '', 404
+
     # todo: better use a streaming response here..?
     lobject = db.lobject(oid=resource['data_oid'], mode='rb')
     data = lobject.read()
@@ -89,9 +92,59 @@ def get_resource_data(resource_id):
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['PUT'])
 def put_resource_data(resource_id):
-    pass
+
+    if 'Content-type' in request.headers:
+        content_type, _ = parse_header(request.headers['Content-type'])
+    else:
+        content_type = 'application/octet-stream'
+
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, data_oid FROM "resource" WHERE id = %(id)s;
+        """, dict(id=resource_id))
+        resource = cur.fetchone()
+
+    if resource is None:
+        return '', 404
+
+    # todo: better use a streaming response here..?
+    lobj = db.lobject(oid=resource['data_oid'], mode='wb')
+    lobj.seek(0)
+    lobj.truncate()
+    lobj.write(request.data)
+    lobj.close()
+
+    # Then, create a record for the metadata
+    with db.cursor() as cur:
+        cur.execute("""
+        UPDATE "resource" SET mimetype=%(mimetype)s WHERE id=%(id)s;
+        """, dict(mimetype=content_type, id=resource_id))
+
+    db.commit()
+    return '', 200
 
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['DELETE'])
 def delete_resource_data(resource_id):
-    pass
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, data_oid FROM "resource" WHERE id = %(id)s;
+        """, dict(id=resource_id))
+        resource = cur.fetchone()
+
+    # todo: better use a streaming response here..?
+    lobj = db.lobject(oid=resource['data_oid'], mode='wb')
+    lobj.unlink()
+
+    # Then, create a record for the metadata
+    with db.cursor() as cur:
+        cur.execute("""
+        DELETE FROM "resource" WHERE id=%(id)s;
+        """, dict(id=resource_id))
+
+    db.commit()
+    return '', 200

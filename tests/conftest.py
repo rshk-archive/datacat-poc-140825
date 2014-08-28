@@ -34,11 +34,7 @@ def postgres_conf():
 @pytest.fixture(scope='module')
 def postgres_admin_db(request, postgres_conf):
     conn = connect(**postgres_conf)
-
-    def cleanup():
-        conn.close()
-
-    request.addfinalizer(cleanup)
+    request.addfinalizer(lambda: conn.close())
     return conn
 
 
@@ -95,12 +91,7 @@ def postgres_user_conf(request, postgres_conf):
 @pytest.fixture
 def postgres_user_db(request, postgres_user_conf):
     conn = connect(**postgres_user_conf)
-
-    def cleanup():
-        conn.close()
-
-    request.addfinalizer(cleanup)
-
+    request.addfinalizer(lambda: conn.close())
     return conn
 
 
