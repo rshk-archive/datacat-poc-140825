@@ -3,8 +3,9 @@ Administrative API for Datacat
 """
 
 import json
+from cgi import parse_header
 
-from flask import Blueprint
+from flask import Blueprint, request, url_for
 # from flask.ext import restful
 
 from datacat.db import get_db
@@ -32,12 +33,58 @@ def get_resource_index():
 
 @admin_bp.route('/resource/', methods=['POST'])
 def post_resource_index():
-    pass
+    """
+    We got some data to be stored as a new resource.
+
+    Then we want to return 201 + URL of the created resource in the
+    Location: header.
+    """
+
+    if 'Content-type' in request.headers:
+        content_type, _ = parse_header(request.headers['Content-type'])
+    else:
+        content_type = 'application/octet-stream'
+
+    db = get_db()
+
+    # First, store the data in a PostgreSQL large object
+    lobj = db.lobject(oid=0, mode='wb')
+    oid = lobj.oid
+    lobj.write(request.data)
+    lobj.close()
+
+    # Then, create a record for the metadata
+    with db.cursor() as cur:
+        cur.execute("""
+        INSERT INTO "resource" (metadata, auto_metadata, mimetype, data_oid)
+        VALUES ('{}', '{}', %(mimetype)s, %(oid)s)
+        RETURNING id;
+        """, dict(mimetype=content_type, oid=oid))
+        resource_id = cur.fetchone()[0]
+
+    db.commit()
+
+    # Last, retun 201 + Location: header
+    location = url_for('.get_resource_data', resource_id=resource_id)
+    return '', 201, {'Location': location}
 
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['GET'])
 def get_resource_data(resource_id):
-    pass
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, mimetype, data_oid FROM "resource" WHERE id = %(id)s;
+        """, dict(id=resource_id))
+        resource = cur.fetchone()
+
+    # todo: better use a streaming response here..?
+    lobject = db.lobject(oid=resource['data_oid'], mode='rb')
+    data = lobject.read()
+    lobject.close()
+
+    return data, 200, {'Content-type': resource['mimetype']}
 
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['PUT'])
@@ -48,43 +95,3 @@ def put_resource_data(resource_id):
 @admin_bp.route('/resource/<int:resource_id>', methods=['DELETE'])
 def delete_resource_data(resource_id):
     pass
-
-
-# class ResourceIndex(restful.Resource):
-#     def get(self):
-#         """List or search resources"""
-#         # todo: add support for pagination
-#         pass
-
-#     def post(self):
-#         """Create a new resource, from **data**"""
-#         pass
-
-
-# class ResourceData(restful.Resource):
-#     def get(self, resource_id):
-#         """Get some data from the resources storage"""
-#         pass
-
-#     def put(self, resource_id):
-#         """Put some data in the resources storage"""
-#         pass
-
-#     def delete(self, resource_id):
-#         pass
-
-
-# class ResourceMetadata(restful.Resource):
-#     def get(self, resource_id):
-#         pass
-
-#     def put(self, resource_id):
-#         pass
-
-#     def patch(self, resource_id):
-#         pass
-
-
-# admin_api.add_resource(ResourceIndex, '/resource/')
-# admin_api.add_resource(ResourceData, '/resource/<int:resource_id>')
-# admin_api.add_resource(ResourceMetadata, '/resource/<int:resource_id>/meta')

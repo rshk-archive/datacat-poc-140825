@@ -73,6 +73,13 @@ def postgres_user_conf(request, postgres_conf):
     def cleanup():
         conn.autocommit = True
         with conn.cursor() as cur:
+            # Kill all connections to database first
+            cur.execute("""
+            SELECT pg_terminate_backend(pg_stat_activity.pid)
+            FROM pg_stat_activity
+            WHERE pg_stat_activity.datname = '{name}'
+            AND pid <> pg_backend_pid();
+            """.format(name=name))
             cur.execute('DROP DATABASE "{name}";'.format(name=name))
             cur.execute('DROP ROLE "{name}";'.format(name=name))
 
@@ -97,16 +104,25 @@ def postgres_user_db(request, postgres_user_conf):
     return conn
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def app_config(postgres_user_conf):
     from flask.config import Config
     from datacat.settings import default
 
     conf = Config('')
     conf.from_object(default)
-    conf['DEBUG'] = False
     conf['DATABASE'] = postgres_user_conf
     return conf
+
+
+@pytest.fixture(scope='module')
+def configured_app(request, app_config):
+    # Run the application in a subprocess on a random port
+    from datacat.web import app
+    app.config.update(app_config)
+    app.debug = True
+    create_tables(connect(**app.config['DATABASE']))
+    return app
 
 
 class RunningAppInfo(object):
@@ -136,7 +152,7 @@ class RunningAppInfo(object):
         return self.request('DELETE', url, *a, **kw)
 
 
-@pytest.fixture
+@pytest.fixture(scope='module')
 def running_app(request, app_config):
     # Run the application in a subprocess on a random port
     import multiprocessing
@@ -149,11 +165,11 @@ def running_app(request, app_config):
     HOST, PORT = '127.0.0.1', 5088
 
     def run_app():
-        app.run(host=HOST, port=PORT, debug=False)
-        time.sleep(.1)  # give it some time to start
+        app.run(host=HOST, port=PORT, debug=True)
 
     proc = multiprocessing.Process(target=run_app)
     proc.start()
+    time.sleep(5)  # give it some time to start
 
     def cleanup():
         proc.terminate()
