@@ -17,19 +17,20 @@ def create_tables(conn):
     with conn.cursor() as cur:
         cur.execute("""
         CREATE TABLE info (
-            key character varying(256),
-            value text);
+            key CHARACTER VARYING (256),
+            value TEXT);
 
         CREATE TABLE dataset (
-            id uuid,
-            configuration json,
-            state json);
+            id SERIAL,
+            configuration TEXT,
+            configuration_format CHARACTER VARYING (128));
 
         CREATE TABLE resource (
-            id uuid,
-            metadata json,
-            auto_metadata json,
-            state json);
+            id SERIAL,
+            metadata JSON,
+            auto_metadata JSON,
+            mimetype CHARACTER VARYING (128),
+            data_oid INTEGER);
         """)
 
 
