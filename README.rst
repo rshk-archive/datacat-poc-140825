@@ -61,11 +61,79 @@ For example, PDFs, ODT, MS DOC, ...
 For example, we can create new datasets by aggregating other resources, ...
 
 
-Data model
-==========
+Public interface
+================
 
-- **Resources** describe a piece of information, usually by pointing
-  at some URL from which the resource can be downloaded.
+The service communicates with the outside using a RESTful API.
 
-- **Datasets** describe how to take some resources and generate some
-  others from them and expose them through the API.
+The main administrative endpoints are:
+
+- ``/resource/`` - list / search resources
+- ``/resource/<name>`` - GET / PUT / DELETE a resource *data*
+- ``/resource/<name>/metadata`` - GET / PUT / PATCH a resource *metadata*
+
+- ``/dataset/`` - list / search dataset configuration
+- ``/dataset/<name>`` - GET / PUT / PATCH / DELETE a dataset configuration
+
+The main "public" endpoints are:
+
+- ``/<name>/`` - Get metadata about the dataset
+- ``/<name>/<related>/`` - Get "other related" items about the
+  dataset. Plugins are responsible of generating contents here.
+
+The above endpoints should be "mounted" to some URL,
+eg. ``/api/<version>/admin/`` and ``/api/<version>/data/``
+respectively.
+
+
+Resources management
+--------------------
+
+Each resource is a record with the following fields:
+
+- ``id`` - serial resource id
+- ``metadata`` - JSON metadata of the resource
+- ``mimetype`` - Mimetype as specified during data PUT
+- ``data_oid`` - PostgreSQL large objects oid of the data
+
+
+Dataset management
+------------------
+
+Each dataset is simply a json (yaml?) text file describing how to
+build the published dataset.
+
+- ``id``
+- ``conf``
+- ``conf_format`` - JSON / YAML
+
+
+Background service
+==================
+
+- Periodically check for outdated information, regenerate the dataset
+  metadata + data
+- Optionally support using a message queue (rabbit / redis / ..) for
+  better scheduling of tasks
+
+
+Usage
+=====
+
+**Note:** a more appropariate configuration method will be added later on
+
+Create a "launcher" script:
+
+.. code-block:: python
+
+    from datacat.web import app
+
+    # Configure
+    # app.config['DATABASE'] = ...
+
+    # To create database:
+    # from datacat.db import create_db
+    # create_db(app.config)
+
+    # Run the webapp
+    app.run()
