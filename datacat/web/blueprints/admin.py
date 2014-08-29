@@ -3,38 +3,15 @@ Administrative API for Datacat
 """
 
 from cgi import parse_header
-from functools import wraps
 import json
 
-from flask import Blueprint, request, url_for, make_response
-from werkzeug.exceptions import BadRequest, NotFound
+from flask import Blueprint, request, url_for
+from werkzeug.exceptions import NotFound
 
 from datacat.db import get_db
+from datacat.web.utils import json_view, _get_json_from_request
 
 admin_bp = Blueprint('admin', __name__)
-
-
-def json_view(func):
-    @wraps(func)
-    def wrapper(*a, **kw):
-        rv = func(*a, **kw)
-        if isinstance(rv, tuple):
-            resp = make_response(json.dumps(rv[0]), *rv[1:])
-        else:
-            resp = make_response(json.dumps(rv))
-        resp.headers['Content-type'] = 'application/json'
-        return resp
-    return wrapper
-
-
-def _get_json_from_request():
-    if request.headers.get('Content-type') != 'application/json':
-        raise BadRequest(
-            "Unsupported Content-type (expected application/json)")
-    try:
-        return json.loads(request.data)
-    except:
-        raise BadRequest('Error decoding json')
 
 
 @admin_bp.route('/resource/', methods=['GET'])
