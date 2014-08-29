@@ -2,33 +2,47 @@
 Administrative API for Datacat
 """
 
-import json
 from cgi import parse_header
+from functools import wraps
+import json
 
-from flask import Blueprint, request, url_for
-# from flask.ext import restful
+from flask import Blueprint, request, url_for, make_response
+from werkzeug.exceptions import BadRequest, NotFound
 
 from datacat.db import get_db
 
 admin_bp = Blueprint('admin', __name__)
-# admin_api = restful.Api(admin_bp)
 
 
-def _json_response(data, code=200, headers=None):
-    _headers = {}
-    if headers is not None:
-        _headers.update(headers)
-    _headers['Content-type'] = 'application/json'
-    _data = json.dumps(data)
-    return _data, code, _headers
+# def _json_response(data, code=200, headers=None):
+#     _headers = {}
+#     if headers is not None:
+#         _headers.update(headers)
+#     _headers['Content-type'] = 'application/json'
+#     _data = json.dumps(data)
+#     return _data, code, _headers
+
+
+def json_view(func):
+    @wraps(func)
+    def wrapper(*a, **kw):
+        rv = func(*a, **kw)
+        if isinstance(rv, tuple):
+            resp = make_response(json.dumps(rv[0]), *rv[1:])
+        else:
+            resp = make_response(json.dumps(rv))
+        resp.headers['Content-type'] = 'application/json'
+        return resp
+    return wrapper
 
 
 @admin_bp.route('/resource/', methods=['GET'])
+@json_view
 def get_resource_index():
     db = get_db()
     with db.cursor() as cur:
         cur.execute("SELECT * FROM resource")
-        return _json_response(list(cur.fetchall()))
+        return list(cur.fetchall())
 
 
 @admin_bp.route('/resource/', methods=['POST'])
@@ -147,4 +161,86 @@ def delete_resource_data(resource_id):
         """, dict(id=resource_id))
 
     db.commit()
+    return '', 200
+
+
+@admin_bp.route('/resource/<int:resource_id>/meta', methods=['GET'])
+@json_view
+def get_resource_metadata(resource_id):
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, metadata FROM "resource" WHERE id = %(id)s;
+        """, dict(id=resource_id))
+        resource = cur.fetchone()
+
+    if resource is None:
+        return '', 404
+
+    return resource['metadata']
+
+
+@admin_bp.route('/resource/<int:resource_id>/meta', methods=['PUT'])
+def put_resource_metadata(resource_id):
+    if request.headers.get('Content-type') != 'application/json':
+        raise BadRequest(
+            "Unsupported Content-type (expected application/json)")
+    try:
+        new_metadata = json.loads(request.data)
+    except:
+        raise BadRequest('Error decoding json')
+
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, metadata FROM "resource" WHERE id = %(id)s;
+        """, dict(id=resource_id))
+        resource = cur.fetchone()
+
+    if resource is None:
+        raise NotFound('This resource does not exist')
+
+    with db.cursor() as cur:
+        cur.execute("""
+        UPDATE "resource" SET metadata=%(meta)s::json WHERE id = %(id)s;
+        """, dict(id=resource_id, meta=json.dumps(new_metadata)))
+
+    db.commit()
+
+    return '', 200
+
+
+@admin_bp.route('/resource/<int:resource_id>/meta', methods=['PATCH'])
+def patch_resource_metadata(resource_id):
+    if request.headers.get('Content-type') != 'application/json':
+        raise BadRequest(
+            "Unsupported Content-type (expected application/json)")
+    try:
+        new_metadata = json.loads(request.data)
+    except:
+        raise BadRequest('Error decoding json')
+
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, metadata FROM "resource" WHERE id = %(id)s;
+        """, dict(id=resource_id))
+        resource = cur.fetchone()
+
+    if resource is None:
+        raise NotFound('This resource does not exist')
+
+    _meta = resource['metadata']
+    _meta.update(new_metadata)
+
+    with db.cursor() as cur:
+        cur.execute("""
+        UPDATE "resource" SET metadata=%(meta)s::json WHERE id = %(id)s;
+        """, dict(id=resource_id, meta=json.dumps(_meta)))
+
+    db.commit()
+
     return '', 200
