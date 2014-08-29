@@ -27,9 +27,20 @@ def json_view(func):
     return wrapper
 
 
+def _get_json_from_request():
+    if request.headers.get('Content-type') != 'application/json':
+        raise BadRequest(
+            "Unsupported Content-type (expected application/json)")
+    try:
+        return json.loads(request.data)
+    except:
+        raise BadRequest('Error decoding json')
+
+
 @admin_bp.route('/resource/', methods=['GET'])
 @json_view
 def get_resource_index():
+    # todo: add paging support
     db = get_db()
     with db.cursor() as cur:
         cur.execute("SELECT id, metadata, mimetype FROM resource")
@@ -87,7 +98,7 @@ def get_resource_data(resource_id):
         resource = cur.fetchone()
 
     if resource is None:
-        return '', 404
+        raise NotFound()
 
     # todo: better use a streaming response here..?
     lobject = db.lobject(oid=resource['data_oid'], mode='rb')
@@ -168,20 +179,14 @@ def get_resource_metadata(resource_id):
         resource = cur.fetchone()
 
     if resource is None:
-        return '', 404
+        raise NotFound()
 
     return resource['metadata']
 
 
 @admin_bp.route('/resource/<int:resource_id>/meta', methods=['PUT'])
 def put_resource_metadata(resource_id):
-    if request.headers.get('Content-type') != 'application/json':
-        raise BadRequest(
-            "Unsupported Content-type (expected application/json)")
-    try:
-        new_metadata = json.loads(request.data)
-    except:
-        raise BadRequest('Error decoding json')
+    new_metadata = _get_json_from_request()
 
     db = get_db()
 
@@ -206,13 +211,7 @@ def put_resource_metadata(resource_id):
 
 @admin_bp.route('/resource/<int:resource_id>/meta', methods=['PATCH'])
 def patch_resource_metadata(resource_id):
-    if request.headers.get('Content-type') != 'application/json':
-        raise BadRequest(
-            "Unsupported Content-type (expected application/json)")
-    try:
-        new_metadata = json.loads(request.data)
-    except:
-        raise BadRequest('Error decoding json')
+    new_metadata = _get_json_from_request()
 
     db = get_db()
 
@@ -235,4 +234,126 @@ def patch_resource_metadata(resource_id):
 
     db.commit()
 
+    return '', 200
+
+
+# ======================================================================
+# Dataset configuration CRUD
+# ======================================================================
+
+
+@admin_bp.route('/dataset/', methods=['GET'])
+@json_view
+def get_dataset_index():
+    # todo: add paging support
+    db = get_db()
+    with db.cursor() as cur:
+        cur.execute("SELECT id, configuration FROM dataset")
+        return list({'id': x['id'],
+                     'configuration': x['configuration']}
+                    for x in cur.fetchall())
+
+
+@admin_bp.route('/dataset/', methods=['POST'])
+def post_dataset_index():
+    content_type = 'application/octet-stream'
+    if request.headers.get('Content-type'):
+        content_type, _ = parse_header(request.headers['Content-type'])
+
+    data = _get_json_from_request()
+
+    db = get_db()
+    with db.cursor() as cur:
+        cur.execute("""
+        INSERT INTO "dataset" (configuration)
+        VALUES (%s::json)
+        RETURNING id;
+        """, (json.dumps(data),))
+        dataset_id = cur.fetchone()[0]
+
+    db.commit()
+
+    # Last, retun 201 + Location: header
+    location = url_for('.get_dataset_configuration', dataset_id=dataset_id)
+    return '', 201, {'Location': location}
+
+
+@admin_bp.route('/dataset/<int:dataset_id>', methods=['GET'])
+@json_view
+def get_dataset_configuration(dataset_id):
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, configuration FROM "dataset" WHERE id = %(id)s;
+        """, dict(id=dataset_id))
+        dataset = cur.fetchone()
+
+    if dataset is None:
+        raise NotFound()
+
+    return dataset['configuration']
+
+
+@admin_bp.route('/dataset/<int:dataset_id>', methods=['PUT'])
+def put_dataset_configuration(dataset_id):
+    data = _get_json_from_request()
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, configuration FROM "dataset" WHERE id = %(id)s;
+        """, dict(id=dataset_id))
+        dataset = cur.fetchone()
+
+    if dataset is None:
+        raise NotFound()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        UPDATE "dataset"
+        SET configuration=%(configuration)s::json
+        WHERE id=%(id)s;
+        """, dict(id=dataset_id, configuration=json.dumps(data)))
+
+    db.commit()
+
+    return '', 200
+
+
+@admin_bp.route('/dataset/<int:dataset_id>', methods=['PATCH'])
+def patch_dataset_configuration(dataset_id):
+    data = _get_json_from_request()
+    db = get_db()
+
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, configuration FROM "dataset" WHERE id = %(id)s;
+        """, dict(id=dataset_id))
+        dataset = cur.fetchone()
+
+    if dataset is None:
+        raise NotFound()
+
+    new_meta = dataset['configuration']
+    new_meta.update(data)
+
+    with db.cursor() as cur:
+        cur.execute("""
+        UPDATE "dataset"
+        SET configuration=%(configuration)s::json
+        WHERE id=%(id)s;
+        """, dict(id=dataset_id, configuration=json.dumps(new_meta)))
+    db.commit()
+    return '', 200
+
+
+@admin_bp.route('/dataset/<int:dataset_id>', methods=['DELETE'])
+def delete_dataset_configuration(dataset_id):
+    db = get_db()
+    with db.cursor() as cur:
+        cur.execute("""
+        DELETE FROM "dataset" WHERE id = %(id)s;
+        """, dict(id=dataset_id))
+    db.commit()
     return '', 200

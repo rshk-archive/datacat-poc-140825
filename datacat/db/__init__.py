@@ -27,8 +27,7 @@ def create_tables(conn):
 
         CREATE TABLE dataset (
             id SERIAL,
-            configuration TEXT,
-            configuration_format CHARACTER VARYING (128));
+            configuration JSON);
 
         CREATE TABLE resource (
             id SERIAL,
