@@ -103,3 +103,23 @@ def test_dataset_crud(configured_app):
     resp = apptc.get('/api/1/admin/dataset/')
     assert resp.status_code == 200
     assert json.loads(resp.data) == []
+
+
+def test_dataset_crud_errors(configured_app):
+    apptc = configured_app.test_client()
+
+    resp = apptc.get('/api/1/admin/dataset/12345')
+    assert resp.status_code == 404
+
+    resp = apptc.put('/api/1/admin/dataset/12345',
+                     headers={'Content-type': 'application/json'},
+                     data=json.dumps({'foo': 'BAR'}))
+    assert resp.status_code == 404
+
+    resp = apptc.patch('/api/1/admin/dataset/12345',
+                       headers={'Content-type': 'application/json'},
+                       data=json.dumps({'foo': 'BAR'}))
+    assert resp.status_code == 404
+
+    resp = apptc.delete('/api/1/admin/dataset/12345')
+    assert resp.status_code == 200
