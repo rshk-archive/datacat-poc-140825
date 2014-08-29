@@ -14,15 +14,6 @@ from datacat.db import get_db
 admin_bp = Blueprint('admin', __name__)
 
 
-# def _json_response(data, code=200, headers=None):
-#     _headers = {}
-#     if headers is not None:
-#         _headers.update(headers)
-#     _headers['Content-type'] = 'application/json'
-#     _data = json.dumps(data)
-#     return _data, code, _headers
-
-
 def json_view(func):
     @wraps(func)
     def wrapper(*a, **kw):
@@ -41,8 +32,12 @@ def json_view(func):
 def get_resource_index():
     db = get_db()
     with db.cursor() as cur:
-        cur.execute("SELECT * FROM resource")
-        return list(cur.fetchall())
+        cur.execute("SELECT id, metadata, mimetype FROM resource")
+        return list({'id': x['id'],
+                     'metadata': x['metadata'],
+                     'mimetype': x['mimetype'],
+                     }
+                    for x in cur.fetchall())
 
 
 @admin_bp.route('/resource/', methods=['POST'])
@@ -53,11 +48,9 @@ def post_resource_index():
     Then we want to return 201 + URL of the created resource in the
     Location: header.
     """
-
-    if 'Content-type' in request.headers:
+    content_type = 'application/octet-stream'
+    if request.headers.get('Content-type'):
         content_type, _ = parse_header(request.headers['Content-type'])
-    else:
-        content_type = 'application/octet-stream'
 
     db = get_db()
 
@@ -101,16 +94,15 @@ def get_resource_data(resource_id):
     data = lobject.read()
     lobject.close()
 
-    return data, 200, {'Content-type': resource['mimetype']}
+    mimetype = resource['mimetype'] or 'application/octet-stream'
+    return data, 200, {'Content-type': mimetype}
 
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['PUT'])
 def put_resource_data(resource_id):
-
-    if 'Content-type' in request.headers:
+    content_type = 'application/octet-stream'
+    if request.headers.get('Content-type'):
         content_type, _ = parse_header(request.headers['Content-type'])
-    else:
-        content_type = 'application/octet-stream'
 
     db = get_db()
 
@@ -121,7 +113,7 @@ def put_resource_data(resource_id):
         resource = cur.fetchone()
 
     if resource is None:
-        return '', 404
+        raise NotFound()
 
     # todo: better use a streaming response here..?
     lobj = db.lobject(oid=resource['data_oid'], mode='wb')
