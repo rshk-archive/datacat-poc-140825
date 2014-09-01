@@ -1,3 +1,4 @@
+from flask import g
 import psycopg2
 import psycopg2.extras
 
@@ -51,4 +52,6 @@ def drop_tables(conn):
 
 def get_db():
     from flask import current_app
-    return connect(**current_app.config['DATABASE'])
+    if not hasattr(g, 'database'):
+        g.database = connect(**current_app.config['DATABASE'])
+    return g.database
