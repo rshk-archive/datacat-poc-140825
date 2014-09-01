@@ -4,13 +4,16 @@
    contain the root `toctree` directive.
 
 Welcome to Datacat's documentation!
-===================================
+###################################
 
 Contents:
 
 .. toctree::
-   :maxdepth: 2
+    :maxdepth: 2
 
+    deploy/index
+    api/index
+    internals/index
 
 
 Indices and tables
