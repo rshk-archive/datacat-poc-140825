@@ -7,6 +7,7 @@ def connect(database, user=None, password=None, host='localhost', port=5432):
     conn = psycopg2.connect(database=database, user=user, password=password,
                             host=host, port=port)
     conn.cursor_factory = psycopg2.extras.DictCursor
+    conn.autocommit = False
     return conn
 
 
