@@ -1,4 +1,5 @@
 DEBUG = False
+
 DATABASE = {
     'database': None,
     'user': None,
@@ -6,3 +7,5 @@ DATABASE = {
     'host': 'localhost',
     'port': 5432,
 }
+
+PLUGINS = []
