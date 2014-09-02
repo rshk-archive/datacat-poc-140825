@@ -19,7 +19,7 @@ admin_bp = Blueprint('admin', __name__)
 def get_resource_index():
     # todo: add paging support
     db = get_db()
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("SELECT id, metadata, mimetype FROM resource")
         return list({'id': x['id'],
                      'metadata': x['metadata'],
@@ -43,21 +43,20 @@ def post_resource_index():
     db = get_db()
 
     # First, store the data in a PostgreSQL large object
-    lobj = db.lobject(oid=0, mode='wb')
-    oid = lobj.oid
-    lobj.write(request.data)
-    lobj.close()
+    with db:
+        lobj = db.lobject(oid=0, mode='wb')
+        oid = lobj.oid
+        lobj.write(request.data)
+        lobj.close()
 
     # Then, create a record for the metadata
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         INSERT INTO "resource" (metadata, auto_metadata, mimetype, data_oid)
         VALUES ('{}', '{}', %(mimetype)s, %(oid)s)
         RETURNING id;
         """, dict(mimetype=content_type, oid=oid))
         resource_id = cur.fetchone()[0]
-
-    db.commit()
 
     # Last, retun 201 + Location: header
     location = url_for('.get_resource_data', resource_id=resource_id)
@@ -78,9 +77,10 @@ def get_resource_data(resource_id):
         raise NotFound()
 
     # todo: better use a streaming response here..?
-    lobject = db.lobject(oid=resource['data_oid'], mode='rb')
-    data = lobject.read()
-    lobject.close()
+    with db:
+        lobject = db.lobject(oid=resource['data_oid'], mode='rb')
+        data = lobject.read()
+        lobject.close()
 
     mimetype = resource['mimetype'] or 'application/octet-stream'
     return data, 200, {'Content-type': mimetype}
@@ -104,14 +104,15 @@ def put_resource_data(resource_id):
         raise NotFound()
 
     # todo: better use a streaming response here..?
-    lobj = db.lobject(oid=resource['data_oid'], mode='wb')
-    lobj.seek(0)
-    lobj.truncate()
-    lobj.write(request.data)
-    lobj.close()
+    with db:
+        lobj = db.lobject(oid=resource['data_oid'], mode='wb')
+        lobj.seek(0)
+        lobj.truncate()
+        lobj.write(request.data)
+        lobj.close()
 
     # Then, create a record for the metadata
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         UPDATE "resource" SET mimetype=%(mimetype)s WHERE id=%(id)s;
         """, dict(mimetype=content_type, id=resource_id))
@@ -131,11 +132,12 @@ def delete_resource_data(resource_id):
         resource = cur.fetchone()
 
     # todo: better use a streaming response here..?
-    lobj = db.lobject(oid=resource['data_oid'], mode='wb')
-    lobj.unlink()
+    with db:
+        lobj = db.lobject(oid=resource['data_oid'], mode='wb')
+        lobj.unlink()
 
     # Then, create a record for the metadata
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         DELETE FROM "resource" WHERE id=%(id)s;
         """, dict(id=resource_id))
@@ -176,12 +178,10 @@ def put_resource_metadata(resource_id):
     if resource is None:
         raise NotFound('This resource does not exist')
 
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         UPDATE "resource" SET metadata=%(meta)s::json WHERE id = %(id)s;
         """, dict(id=resource_id, meta=json.dumps(new_metadata)))
-
-    db.commit()
 
     return '', 200
 
@@ -204,12 +204,10 @@ def patch_resource_metadata(resource_id):
     _meta = resource['metadata']
     _meta.update(new_metadata)
 
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         UPDATE "resource" SET metadata=%(meta)s::json WHERE id = %(id)s;
         """, dict(id=resource_id, meta=json.dumps(_meta)))
-
-    db.commit()
 
     return '', 200
 
@@ -240,15 +238,13 @@ def post_dataset_index():
     data = _get_json_from_request()
 
     db = get_db()
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         INSERT INTO "dataset" (configuration)
         VALUES (%s::json)
         RETURNING id;
         """, (json.dumps(data),))
         dataset_id = cur.fetchone()[0]
-
-    db.commit()
 
     # Last, retun 201 + Location: header
     location = url_for('.get_dataset_configuration', dataset_id=dataset_id)
@@ -286,14 +282,12 @@ def put_dataset_configuration(dataset_id):
     if dataset is None:
         raise NotFound()
 
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         UPDATE "dataset"
         SET configuration=%(configuration)s::json
         WHERE id=%(id)s;
         """, dict(id=dataset_id, configuration=json.dumps(data)))
-
-    db.commit()
 
     return '', 200
 
@@ -315,22 +309,22 @@ def patch_dataset_configuration(dataset_id):
     new_meta = dataset['configuration']
     new_meta.update(data)
 
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         UPDATE "dataset"
         SET configuration=%(configuration)s::json
         WHERE id=%(id)s;
         """, dict(id=dataset_id, configuration=json.dumps(new_meta)))
-    db.commit()
+
     return '', 200
 
 
 @admin_bp.route('/dataset/<int:dataset_id>', methods=['DELETE'])
 def delete_dataset_configuration(dataset_id):
     db = get_db()
-    with db.cursor() as cur:
+    with db, db.cursor() as cur:
         cur.execute("""
         DELETE FROM "dataset" WHERE id = %(id)s;
         """, dict(id=dataset_id))
-    db.commit()
+
     return '', 200
