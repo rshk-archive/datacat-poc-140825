@@ -25,7 +25,9 @@ def make_app():
 
         # Add blueprint, if the plugin provides one
         if plugin.blueprint is not None:
-            app.register_blueprint(plugin.blueprint, url_prefix='/api/1/data')
+            app.register_blueprint(
+                plugin.blueprint,
+                url_prefix='/api/1/data/<int:dataset_id>')
 
     return app
 

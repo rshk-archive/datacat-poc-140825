@@ -1,33 +1,26 @@
-from cgi import parse_header
-import json
-
-from flask import Blueprint, request, url_for
+from flask import Blueprint, current_app
 from werkzeug.exceptions import NotFound
 
 from datacat.db import get_db
-from datacat.web.utils import json_view, _get_json_from_request
+from datacat.web.utils import json_view
 
 public_bp = Blueprint('public', __name__)
 
 
-def make_dataset_metadata(id, config):
+def make_dataset_metadata(dataset_id, config):
     """
     Create dataset metadata from some dataset configuration.
     """
 
     metadata = {}
-    metadata.update(config.get('metadata'), {})
-    metadata['resources'] = []
-    for resource_conf in config.get('resources', []):
-        if resource_conf['type'] == 'resource':
-            # We want to link to an internal resource directly
-            pass
-        pass
-    metadata['id'] = id
+    for plugin in current_app.plugins:
+        if hasattr(plugin, 'make_dataset_metadata'):
+            plugin.make_dataset_metadata(dataset_id, config, metadata)
+    metadata['id'] = dataset_id
     return metadata
 
 
-@public_bp.route('/dataset/', methods=['GET'])
+@public_bp.route('/', methods=['GET'])
 @json_view
 def get_dataset_index():
     # todo: add paging support
@@ -38,12 +31,16 @@ def get_dataset_index():
                 for x in cur.fetchall()]
 
 
-@public_bp.route('/dataset/', methods=['GET'])
+@public_bp.route('/<int:dataset_id>', methods=['GET'])
 @json_view
-def get_dataset():
-    # todo: add paging support
+def get_dataset(dataset_id):
     db = get_db()
     with db.cursor() as cur:
-        cur.execute("SELECT id, configuration FROM dataset")
-        return [make_dataset_metadata(x['id'], x['configuration'])
-                for x in cur.fetchall()]
+        cur.execute("SELECT id, configuration FROM dataset"
+                    " WHERE id=%s;", (dataset_id,))
+        result = cur.fetchone()
+
+    if result is None:
+        raise NotFound("Dataset not found: {0}".format(dataset_id))
+
+    return make_dataset_metadata(result['id'], result['configuration'])
