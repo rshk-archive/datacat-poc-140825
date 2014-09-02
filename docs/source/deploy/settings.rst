@@ -1,6 +1,18 @@
 Settings
 ########
 
+
+The default settings are in ``datacat.settings.default``.
+
+To pass extra configuration, set the environment variable
+:envvar:`!DATACAT_SETTINGS` to point to a Python file containing the
+configuration overrides.
+
+Many configuration variables are used directly by Flask, and their
+documentation can be found at:
+http://flask.pocoo.org/docs/latest/config/#builtin-configuration-values
+
+
 ``DATABASE``
 ============
 
@@ -9,30 +21,23 @@ PostgreSQL database configuration:
 .. code-block:: python
 
     {
-        'database': 'datacat-db',
-	'user': 'datacat',
-	'password': 'S3cur3-P4ssw0rd'
         'host': 'localhost',
         'port': 5432,
+        'database': 'datacat-db',
+	'user': 'datacat-user',
+	'password': 'S3cur3-P4ssw0rd'
     }
 
 
-``DATASET_PLUGINS``
-===================
+``PLUGINS``
+===========
 
-Dictionary mapping names to classes to be used to process dataset
-configuration:
+List of enabled plugins.
 
 .. code-block:: python
 
-    {
-        'default': '$simple',
-	'simple': 'datacat.ext.dataset:Simple',
-    }
-
-
-``RESOURCE_PLUGINS``
-====================
-
-Dictionary mapping names to classes to be used to process resource
-configuration. Accepts the same syntax as `DATASET_PLUGINS`_.
+    [
+        'datacat.ext.eggs:EggsPlugin',
+        'datacat.ext.spam:SpamPlugin',
+        'datacat.ext.bacon:BaconPlugin',
+    ]
