@@ -8,4 +8,6 @@ DATABASE = {
     'port': 5432,
 }
 
-PLUGINS = []
+PLUGINS = [
+    'datacat.ext.core:CorePlugin',
+]
