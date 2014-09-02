@@ -18,6 +18,7 @@ def test_table_create_drop(postgres_user_db):
 
 def test_db_large_objects(postgres_user_db):
     conn = postgres_user_db
+    conn.autocommit = False
 
     lobject = conn.lobject(oid=0, mode='wb')
     lo_oid = lobject.oid
