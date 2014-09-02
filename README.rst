@@ -2,15 +2,24 @@ Data Catalog - PoC 2014-08-25
 #############################
 
 **Project goal:** create a service, talking via RESTful API, to
- provide facilities for storing data, adding metadata, and generating
- "derivates" from the stored data.
+provide facilities for storing data, adding metadata, and generating
+"derivates" from the stored data.
 
 
 Technology
 ==========
 
+**Core:**
+
+Mandatory requirements to make the application work.
+
 - Python (Flask, Psycopg2)
-- PostgreSQL 9.2+ (with Json column type)
+- PostgreSQL 9.2+ (we need JSON column type) [tested on 9.4]
+
+**Core plugins:**
+
+Requirements for plugins shipped with the core, but not mandatory.
+
 - PostGIS (for the geo data plugin)
 - Mapnik (for rendering geo data)
 
@@ -63,6 +72,8 @@ For example, we can create new datasets by aggregating other resources, ...
 
 Public interface
 ================
+
+**NOTE:** This section is slightly outdated!
 
 The service communicates with the outside using a RESTful API.
 
