@@ -26,7 +26,10 @@ def get_dataset_index():
     # todo: add paging support
     db = get_db()
     with db.cursor() as cur:
-        cur.execute("SELECT id, configuration FROM dataset")
+        cur.execute("""
+        SELECT id, configuration FROM dataset
+        ORDER BY id ASC
+        """)
         return [make_dataset_metadata(x['id'], x['configuration'])
                 for x in cur.fetchall()]
 

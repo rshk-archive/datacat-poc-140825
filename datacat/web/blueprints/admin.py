@@ -20,7 +20,10 @@ def get_resource_index():
     # todo: add paging support
     db = get_db()
     with db, db.cursor() as cur:
-        cur.execute("SELECT id, metadata, mimetype FROM resource")
+        cur.execute("""
+        SELECT id, metadata, mimetype FROM resource
+        ORDER BY id ASC
+        """)
         return list({'id': x['id'],
                      'metadata': x['metadata'],
                      'mimetype': x['mimetype'],
@@ -208,7 +211,10 @@ def get_dataset_index():
     # todo: add paging support
     db = get_db()
     with db.cursor() as cur:
-        cur.execute("SELECT id, configuration FROM dataset")
+        cur.execute("""
+        SELECT id, configuration FROM dataset
+        ORDER BY id ASC
+        """)
         return list({'id': x['id'],
                      'configuration': x['configuration']}
                     for x in cur.fetchall())
