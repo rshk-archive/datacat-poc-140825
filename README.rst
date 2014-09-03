@@ -15,6 +15,7 @@ Mandatory requirements to make the application work.
 
 - Python (Flask, Psycopg2)
 - PostgreSQL 9.2+ (we need JSON column type) [tested on 9.4]
+- Celery for the asynchronous tasks running facilities
 
 **Core plugins:**
 
@@ -22,6 +23,14 @@ Requirements for plugins shipped with the core, but not mandatory.
 
 - PostGIS (for the geo data plugin)
 - Mapnik (for rendering geo data)
+
+.. note:: In order to use Celery-based tasks (only required for
+          certain plugins, you'll also need to install and configure a
+          broker, such as RabbitMQ or Redis).
+
+	  See `Celery - Brokers
+	  <http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html>`_
+	  for more information.
 
 
 Example use cases

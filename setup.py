@@ -9,7 +9,7 @@ with open(os.path.join(here, 'README.rst')) as fp:
     longdesc = fp.read()
 
 with open(os.path.join(here, 'CHANGELOG.rst')) as fp:
-    longdesc += fp.read()
+    longdesc += "\n\n" + fp.read()
 
 
 setup(
@@ -24,9 +24,10 @@ setup(
     long_description=longdesc,
     install_requires=[
         'Flask',
-        'flask-restful',
+        # 'flask-restful',
         'psycopg2',
         'nicelog',
+        'celery[redis]',
     ],
     # tests_require=tests_require,
     # test_suite='tests',
