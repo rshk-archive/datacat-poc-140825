@@ -1,8 +1,8 @@
-from flask import Blueprint, url_for, redirect
+from flask import Blueprint, url_for
 from werkzeug.exceptions import NotFound
 
 from datacat.db import get_db
-from datacat.ext.plugin import BasePlugin
+from datacat.ext.base import BasePlugin
 from datacat.web.utils import json_view
 
 
@@ -51,7 +51,7 @@ def get_dataset_resource(dataset_id, resource_id):
 
     resource_type = resource_conf.get('type')
     if resource_type == 'internal':
-        url = url_for('admin.get_resource_data',
+        url = url_for('public.serve_resource_data',
                       resource_id=resource_conf['id'],
                       _external=True)
 
