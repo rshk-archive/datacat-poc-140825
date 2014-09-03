@@ -44,3 +44,26 @@ def get_dataset(dataset_id):
         raise NotFound("Dataset not found: {0}".format(dataset_id))
 
     return make_dataset_metadata(result['id'], result['configuration'])
+
+
+@public_bp.route('/resource/<int:resource_id>', methods=['GET'])
+def serve_resource_data(resource_id):
+    db = get_db()
+
+    with db, db.cursor() as cur:
+        cur.execute("""
+        SELECT id, mimetype, data_oid FROM "resource" WHERE id = %(id)s;
+        """, dict(id=resource_id))
+        resource = cur.fetchone()
+
+    if resource is None:
+        raise NotFound()
+
+    # todo: better use a streaming response here..?
+    with db:
+        lobject = db.lobject(oid=resource['data_oid'], mode='rb')
+        data = lobject.read()
+        lobject.close()
+
+    mimetype = resource['mimetype'] or 'application/octet-stream'
+    return data, 200, {'Content-type': mimetype}

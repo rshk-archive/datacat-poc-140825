@@ -65,25 +65,10 @@ def post_resource_index():
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['GET'])
 def get_resource_data(resource_id):
-    db = get_db()
-
-    with db.cursor() as cur:
-        cur.execute("""
-        SELECT id, mimetype, data_oid FROM "resource" WHERE id = %(id)s;
-        """, dict(id=resource_id))
-        resource = cur.fetchone()
-
-    if resource is None:
-        raise NotFound()
-
-    # todo: better use a streaming response here..?
-    with db:
-        lobject = db.lobject(oid=resource['data_oid'], mode='rb')
-        data = lobject.read()
-        lobject.close()
-
-    mimetype = resource['mimetype'] or 'application/octet-stream'
-    return data, 200, {'Content-type': mimetype}
+    # We can just redirect to the endpoint serving resource data
+    return '', 301, {'Location': url_for('public.serve_resource_data',
+                                         resource_id=resource_id,
+                                         _external=True)}
 
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['PUT'])

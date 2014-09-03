@@ -33,6 +33,11 @@ def test_resource_crud(configured_app):
     # ------------------------------------------------------------
 
     resp = apptc.get('/api/1/admin/resource/{0}'.format(resource_id))
+    assert resp.status_code == 301
+    path = urlparse.urlparse(resp.headers['Location']).path
+    assert path == '/api/1/data/resource/{0}'.format(resource_id)
+
+    resp = apptc.get(resp.headers['Location'])
     assert resp.status_code == 200
     assert resp.data == DATA_PAYLOAD
     assert resp.headers['Content-type'] == 'application/json'
@@ -58,6 +63,11 @@ def test_resource_crud(configured_app):
     assert resp.data == ''
 
     resp = apptc.get('/api/1/admin/resource/{0}'.format(resource_id))
+    assert resp.status_code == 301
+    path = urlparse.urlparse(resp.headers['Location']).path
+    assert path == '/api/1/data/resource/{0}'.format(resource_id)
+
+    resp = apptc.get(resp.headers['Location'])
     assert resp.status_code == 200
     assert resp.data == 'HELLO WORLD'
     assert resp.headers['Content-type'] == 'text/plain'
@@ -71,6 +81,11 @@ def test_resource_crud(configured_app):
     assert resp.data == ''
 
     resp = apptc.get('/api/1/admin/resource/{0}'.format(resource_id))
+    assert resp.status_code == 301
+    path = urlparse.urlparse(resp.headers['Location']).path
+    assert path == '/api/1/data/resource/{0}'.format(resource_id)
+
+    resp = apptc.get(resp.headers['Location'])
     assert resp.status_code == 404
 
     # Make sure it is not listed in the index anymore
@@ -100,6 +115,11 @@ def test_resource_create_default_mime(configured_app):
     # ------------------------------------------------------------
 
     resp = apptc.get('/api/1/admin/resource/{0}'.format(resource_id))
+    assert resp.status_code == 301
+    path = urlparse.urlparse(resp.headers['Location']).path
+    assert path == '/api/1/data/resource/{0}'.format(resource_id)
+
+    resp = apptc.get(resp.headers['Location'])
     assert resp.status_code == 200
     assert resp.data == 'Some data'
     assert resp.headers['Content-type'] == 'application/octet-stream'
@@ -109,6 +129,9 @@ def test_resource_error_404(configured_app):
     apptc = configured_app.test_client()
 
     resp = apptc.get('/api/1/admin/resource/12345')
+    assert resp.status_code == 301
+
+    resp = apptc.get(resp.headers['Location'])
     assert resp.status_code == 404
 
     resp = apptc.put('/api/1/admin/resource/12345', data='foobar')
