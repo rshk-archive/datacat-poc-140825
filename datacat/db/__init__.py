@@ -16,10 +16,17 @@ def create_tables(conn):
     Create database schema for a given connection.
     """
 
+    # We need to be in autocommit mode (i.e. out of transactions)
+    # in order to create tables / do administrative stuff..
     conn.autocommit = True
 
+    # ------------------------------------------------------------
     # See this: http://stackoverflow.com/questions/18404055
-    # for creating indices on JSON field items
+    # for creating indices on JSON field items.
+    #
+    # We will need to allow defining such indices in the configuration
+    # but maybe a plugin should be used to handle that..
+    # ------------------------------------------------------------
 
     with conn.cursor() as cur:
         cur.execute("""
@@ -29,14 +36,18 @@ def create_tables(conn):
 
         CREATE TABLE dataset (
             id SERIAL,
-            configuration JSON);
+            configuration JSON,
+            ctime TIMESTAMP WITHOUT TIME ZONE,
+            mtime TIMESTAMP WITHOUT TIME ZONE);
 
         CREATE TABLE resource (
             id SERIAL,
             metadata JSON,
             auto_metadata JSON,
             mimetype CHARACTER VARYING (128),
-            data_oid INTEGER);
+            data_oid INTEGER,
+            ctime TIMESTAMP WITHOUT TIME ZONE,
+            mtime TIMESTAMP WITHOUT TIME ZONE);
         """)
 
 

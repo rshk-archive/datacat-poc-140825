@@ -3,6 +3,7 @@ Administrative API for Datacat
 """
 
 from cgi import parse_header
+import datetime
 import json
 
 from flask import Blueprint, request, url_for
@@ -55,10 +56,13 @@ def post_resource_index():
     # Then, create a record for the metadata
     with db, db.cursor() as cur:
         cur.execute("""
-        INSERT INTO "resource" (metadata, auto_metadata, mimetype, data_oid)
-        VALUES ('{}', '{}', %(mimetype)s, %(oid)s)
+        INSERT INTO "resource" (
+            metadata, auto_metadata, mimetype, data_oid, ctime, mtime
+        )
+        VALUES ('{}', '{}', %(mimetype)s, %(oid)s, %(ctime)s, %(ctime)s)
         RETURNING id;
-        """, dict(mimetype=content_type, oid=oid))
+        """, dict(mimetype=content_type, oid=oid,
+                  ctime=datetime.datetime.utcnow()))
         resource_id = cur.fetchone()[0]
 
     # Last, retun 201 + Location: header
@@ -68,10 +72,15 @@ def post_resource_index():
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['GET'])
 def get_resource_data(resource_id):
-    # We can just redirect to the endpoint serving resource data
-    return '', 301, {'Location': url_for('public.serve_resource_data',
-                                         resource_id=resource_id,
-                                         _external=True)}
+    """
+    Just redirect to the endpoint in the public API serving resource data.
+    Note that in the future we might want to change this behavior if we
+    want to keep some resources "private".
+    """
+
+    dest_url = url_for('public.serve_resource_data',
+                       resource_id=resource_id, _external=True)
+    return '', 301, {'Location': dest_url}
 
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['PUT'])
@@ -102,8 +111,12 @@ def put_resource_data(resource_id):
     # Then, create a record for the metadata
     with db, db.cursor() as cur:
         cur.execute("""
-        UPDATE "resource" SET mimetype=%(mimetype)s WHERE id=%(id)s;
-        """, dict(mimetype=content_type, id=resource_id))
+        UPDATE "resource"
+        SET mimetype=%(mimetype)s,
+            mtime=%(mtime)s
+        WHERE id=%(id)s;
+        """, dict(mimetype=content_type, id=resource_id,
+                  mtime=datetime.datetime.utcnow()))
 
     db.commit()
     return '', 200
@@ -168,8 +181,12 @@ def put_resource_metadata(resource_id):
 
     with db, db.cursor() as cur:
         cur.execute("""
-        UPDATE "resource" SET metadata=%(meta)s::json WHERE id = %(id)s;
-        """, dict(id=resource_id, meta=json.dumps(new_metadata)))
+        UPDATE "resource"
+        SET metadata=%(meta)s::json,
+            mtime=%(mtime)s
+        WHERE id = %(id)s;
+        """, dict(id=resource_id, meta=json.dumps(new_metadata),
+                  mtime=datetime.datetime.utcnow()))
 
     return '', 200
 
@@ -194,8 +211,12 @@ def patch_resource_metadata(resource_id):
 
     with db, db.cursor() as cur:
         cur.execute("""
-        UPDATE "resource" SET metadata=%(meta)s::json WHERE id = %(id)s;
-        """, dict(id=resource_id, meta=json.dumps(_meta)))
+        UPDATE "resource"
+        SET metadata=%(meta)s::json,
+            mtime=%(mtime)s
+        WHERE id = %(id)s;
+        """, dict(id=resource_id, meta=json.dumps(_meta),
+                  mtime=datetime.datetime.utcnow()))
 
     return '', 200
 
@@ -231,10 +252,10 @@ def post_dataset_index():
     db = get_db()
     with db, db.cursor() as cur:
         cur.execute("""
-        INSERT INTO "dataset" (configuration)
-        VALUES (%s::json)
+        INSERT INTO "dataset" (configuration, ctime, mtime)
+        VALUES (%(conf)s::json, %(mtime)s, %(mtime)s)
         RETURNING id;
-        """, (json.dumps(data),))
+        """, dict(conf=json.dumps(data), mtime=datetime.datetime.utcnow()))
         dataset_id = cur.fetchone()[0]
 
     # Last, retun 201 + Location: header
@@ -276,9 +297,11 @@ def put_dataset_configuration(dataset_id):
     with db, db.cursor() as cur:
         cur.execute("""
         UPDATE "dataset"
-        SET configuration=%(configuration)s::json
+        SET configuration=%(configuration)s::json,
+            mtime=%(mtime)s
         WHERE id=%(id)s;
-        """, dict(id=dataset_id, configuration=json.dumps(data)))
+        """, dict(id=dataset_id, configuration=json.dumps(data),
+                  mtime=datetime.datetime.utcnow()))
 
     return '', 200
 
@@ -303,9 +326,11 @@ def patch_dataset_configuration(dataset_id):
     with db, db.cursor() as cur:
         cur.execute("""
         UPDATE "dataset"
-        SET configuration=%(configuration)s::json
+        SET configuration=%(configuration)s::json,
+            mtime=%(mtime)s
         WHERE id=%(id)s;
-        """, dict(id=dataset_id, configuration=json.dumps(new_meta)))
+        """, dict(id=dataset_id, configuration=json.dumps(new_meta),
+                  mtime=datetime.datetime.utcnow()))
 
     return '', 200
 
