@@ -14,6 +14,7 @@ Contents:
     deploy/index
     api/index
     internals/index
+    development/index
 
 
 Indices and tables
@@ -22,4 +23,3 @@ Indices and tables
 * :ref:`genindex`
 * :ref:`modindex`
 * :ref:`search`
-
