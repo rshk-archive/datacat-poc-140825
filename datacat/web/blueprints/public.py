@@ -3,6 +3,7 @@ from werkzeug.exceptions import NotFound
 
 from datacat.db import get_db
 from datacat.web.utils import json_view
+from datacat.utils.const import HTTP_DATE_FORMAT
 
 public_bp = Blueprint('public', __name__)
 
@@ -14,8 +15,7 @@ def make_dataset_metadata(dataset_id, config):
 
     metadata = {}
     for plugin in current_app.plugins:
-        if hasattr(plugin, 'make_dataset_metadata'):
-            plugin.make_dataset_metadata(dataset_id, config, metadata)
+        plugin.call_hook('make_dataset_metadata', dataset_id, config, metadata)
     metadata['id'] = dataset_id
     return metadata
 
@@ -55,9 +55,14 @@ def serve_resource_data(resource_id):
 
     with db, db.cursor() as cur:
         cur.execute("""
-        SELECT id, mimetype, data_oid FROM "resource" WHERE id = %(id)s;
+        SELECT id, mimetype, data_oid, mtime FROM "resource" WHERE id = %(id)s;
         """, dict(id=resource_id))
         resource = cur.fetchone()
+
+    # todo: check the if-modified-since header -> return 304 if not modified
+    # todo: check for partial content requests?
+    # -> we should figure out a way to delegate this to the webserver..
+    # todo: add Cache-Control, .. headers, for use by cache proxy
 
     if resource is None:
         raise NotFound()
@@ -69,4 +74,9 @@ def serve_resource_data(resource_id):
         lobject.close()
 
     mimetype = resource['mimetype'] or 'application/octet-stream'
-    return data, 200, {'Content-type': mimetype}
+    headers = {
+        'Last-modified': resource['mtime'].strftime(HTTP_DATE_FORMAT),
+        'Content-type': mimetype,
+    }
+
+    return data, 200, headers

@@ -2,7 +2,7 @@ import flask
 
 from datacat.web.blueprints.admin import admin_bp
 from datacat.web.blueprints.public import public_bp
-from datacat.utils.plugin_loading import get_plugin_class
+from datacat.utils.plugin_loading import import_object
 
 
 def make_app():
@@ -16,18 +16,11 @@ def make_app():
     app.plugins = []
     for name in app.config['PLUGINS']:
         # Instantiate plugin class
-        klass = get_plugin_class(name)
-        plugin = klass(app.config)
+        plugin = import_object(name)
         app.plugins.append(plugin)
 
-        # Setup
-        plugin.setup()
-
-        # Add blueprint, if the plugin provides one
-        if plugin.blueprint is not None:
-            app.register_blueprint(
-                plugin.blueprint,
-                url_prefix='/api/1/data/<int:dataset_id>')
+        # Setup the plugin
+        plugin.setup(app)
 
     return app
 

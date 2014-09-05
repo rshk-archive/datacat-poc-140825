@@ -1,37 +1,31 @@
-from flask import Blueprint, url_for
+from flask import url_for
 from werkzeug.exceptions import NotFound
 
 from datacat.db import get_db
-from datacat.ext.base import BasePlugin
+from datacat.ext.base import Plugin
 from datacat.web.utils import json_view
 
 
-class CorePlugin(BasePlugin):
-    """
-    "Core" plugin handling some standard functionality.
-    """
-
-    def setup(self):
-        pass
-
-    def make_dataset_metadata(self, dataset_id, config, metadata):
-        if 'metadata' in config:
-            metadata.update(config['metadata'])
-
-        if 'resources' in config:
-            metadata['resources'] = []
-            for resource_id, resource in enumerate(config['resources']):
-                metadata['resources'].append({
-                    'url': url_for(__name__ + '.get_dataset_resource',
-                                   dataset_id=dataset_id,
-                                   resource_id=resource_id,
-                                   _external=True)
-                })
-
-    blueprint = Blueprint(__name__, __name__)
+core_plugin = Plugin(__name__)
 
 
-@CorePlugin.blueprint.route('/resource/<int:resource_id>')
+@core_plugin.hook('make_dataset_metadata')
+def make_dataset_metadata(dataset_id, config, metadata):
+    if 'metadata' in config:
+        metadata.update(config['metadata'])
+
+    if 'resources' in config:
+        metadata['resources'] = []
+        for resource_id, resource in enumerate(config['resources']):
+            metadata['resources'].append({
+                'url': url_for(__name__ + '.get_dataset_resource',
+                               dataset_id=dataset_id,
+                               resource_id=resource_id,
+                               _external=True)
+            })
+
+
+@core_plugin.route('/data/<int:dataset_id>/resource/<int:resource_id>')
 @json_view
 def get_dataset_resource(dataset_id, resource_id):
     db = get_db()

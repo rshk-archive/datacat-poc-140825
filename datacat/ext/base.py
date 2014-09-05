@@ -1,40 +1,58 @@
-class BasePlugin(object):
-    """
-    Base class (and interface) for defining plugins.
-    """
+from collections import defaultdict
+from flask import Blueprint
 
-    def __init__(self, config):
+
+class Plugin(object):
+    def __init__(self, import_name):
         """
         :param config:
             The main application configuration
         """
-        self._config = config
+        self.import_name = import_name
+        self._hooks = defaultdict(list)
+        self._tasks = []
+        self._blueprint = None
 
-    def setup(self):
+    def setup(self, app):
+        """Setup the plugin by attaching an application"""
+
+        # Register blueprint, if any
+        if self._blueprint is not None:
+            app.register_blueprint(self._blueprint, url_prefix='/api/1')
+
+        # Register all the plugin-defined celery tasks
+        self._app = app
+        if hasattr(app, 'celery'):
+            for a, kw, func in self._tasks:
+                app.celery.task(*a, **kw)(func)
+
+    def hook(self, hook_type):
         """
-        Called at service startup for all the configured plugins.
-
-        May be used, eg, to ensure database schema or other resources
-        are set up properly, etc.
+        Decorator function to register a "hook" function, to be used later for
+        various purposes.
         """
 
-    def make_dataset_metadata(self, dataset_id, config, meta):
+        def decorator(func):
+            self._hooks[hook_type].append(func)
+        return decorator
+
+    def call_hook(self, hook_type, *a, **kw):
+        return [hook(*a, **kw) for hook in self._hooks.get(hook_type, [])]
+
+    def route(self, *a, **kw):
         """
-        :param dataset_id:
-            The dataset dataset_id
-        :param config:
-            The dataset configuration object
-        :param meta:
-            The current state of the dataset metadata, to be changed in place
-        :return:
-            The generated dataset metadata
+        Decorator function to register an API view for this plugin
         """
 
-    blueprint = None
+        if self._blueprint is None:
+            self._blueprint = Blueprint(self.import_name, self.import_name)
+        return self._blueprint.route(*a, **kw)
 
-    def handle_event(self, event_type, event_data):
-        """Handle an event"""
+    def task(self, *a, **kw):
+        """
+        Decorator function to register a celery task
+        """
 
-        method_name = 'on_{0}'.format(event_type)
-        if hasattr(self, method_name):
-            return getattr(self, method_name)(event_data)
+        def decorator(func):
+            self._tasks.append((a, kw, func))
+        return decorator

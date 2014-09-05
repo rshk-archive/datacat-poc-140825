@@ -22,7 +22,7 @@ DATABASE = {
 }
 
 PLUGINS = [
-    'datacat.ext.core:CorePlugin',
+    'datacat.ext.core:core_plugin',
 ]
 
 

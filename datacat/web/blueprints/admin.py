@@ -11,6 +11,7 @@ from werkzeug.exceptions import NotFound
 
 from datacat.db import get_db
 from datacat.web.utils import json_view, _get_json_from_request
+from datacat.utils.const import DATE_FORMAT, HTTP_DATE_FORMAT
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -22,13 +23,14 @@ def get_resource_index():
     db = get_db()
     with db, db.cursor() as cur:
         cur.execute("""
-        SELECT id, metadata, mimetype FROM resource
+        SELECT id, metadata, mimetype, mtime, ctime FROM resource
         ORDER BY id ASC
         """)
         return list({'id': x['id'],
                      'metadata': x['metadata'],
                      'mimetype': x['mimetype'],
-                     }
+                     'ctime': x['ctime'].strftime(DATE_FORMAT),
+                     'mtime': x['mtime'].strftime(DATE_FORMAT)}
                     for x in cur.fetchall())
 
 
@@ -233,11 +235,13 @@ def get_dataset_index():
     db = get_db()
     with db.cursor() as cur:
         cur.execute("""
-        SELECT id, configuration FROM dataset
+        SELECT id, configuration, ctime, mtime FROM dataset
         ORDER BY id ASC
         """)
         return list({'id': x['id'],
-                     'configuration': x['configuration']}
+                     'configuration': x['configuration'],
+                     'ctime': x['ctime'].strftime(DATE_FORMAT),
+                     'mtime': x['mtime'].strftime(DATE_FORMAT)}
                     for x in cur.fetchall())
 
 
@@ -270,14 +274,18 @@ def get_dataset_configuration(dataset_id):
 
     with db.cursor() as cur:
         cur.execute("""
-        SELECT id, configuration FROM "dataset" WHERE id = %(id)s;
+        SELECT id, configuration, mtime FROM "dataset" WHERE id = %(id)s;
         """, dict(id=dataset_id))
         dataset = cur.fetchone()
 
     if dataset is None:
         raise NotFound()
 
-    return dataset['configuration']
+    headers = {
+        'Last-modified': dataset['mtime'].strftime(HTTP_DATE_FORMAT),
+    }
+
+    return dataset['configuration'], 200, headers
 
 
 @admin_bp.route('/dataset/<int:dataset_id>', methods=['PUT'])
