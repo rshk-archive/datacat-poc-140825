@@ -33,7 +33,12 @@ class Plugin(object):
         """
 
         def decorator(func):
-            self._hooks[hook_type].append(func)
+            _hook_type = hook_type
+            if not isinstance(_hook_type, (tuple, list)):
+                _hook_type = (_hook_type,)
+            for t in hook_type:
+                self._hooks[t].append(func)
+            return func
         return decorator
 
     def call_hook(self, hook_type, *a, **kw):
@@ -54,5 +59,8 @@ class Plugin(object):
         """
 
         def decorator(func):
+            # todo: we must return a Task object here! -- to do that,
+            #       we need a celery app..
             self._tasks.append((a, kw, func))
+            return func
         return decorator
