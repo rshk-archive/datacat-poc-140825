@@ -36,7 +36,7 @@ class Plugin(object):
             _hook_type = hook_type
             if not isinstance(_hook_type, (tuple, list)):
                 _hook_type = (_hook_type,)
-            for t in hook_type:
+            for t in _hook_type:
                 self._hooks[t].append(func)
             return func
         return decorator
@@ -58,9 +58,5 @@ class Plugin(object):
         Decorator function to register a celery task
         """
 
-        def decorator(func):
-            # todo: we must return a Task object here! -- to do that,
-            #       we need a celery app..
-            self._tasks.append((a, kw, func))
-            return func
-        return decorator
+        from datacat.tasks import celery_app
+        return celery_app.task(*a, **kw)

@@ -1,17 +1,24 @@
-from celery import Celery
+from celery import Celery, Task
 
 
-def make_celery(app):
-    celery = Celery(app.import_name, broker=app.config['CELERY_BROKER_URL'])
-    celery.conf.update(app.config)
-    Task = celery.Task
+# This is the "base" celery app, used to setup tasks etc.
+# It will then be "hot-swapped" on tasks using the application
+# context / flask.current_app
+celery_app = Celery('datacat.tasks')
 
-    class AppContextTask(Task):
-        abstract = True
 
-        def __call__(self, *args, **kwargs):
-            with app.app_context():
-                return Task.__call__(self, *args, **kwargs)
+class AppContextTask(celery_app.Task):
+    abstract = True
 
-    celery.Task = AppContextTask
-    return celery
+    def __call__(self, *args, **kwargs):
+        from flask import current_app
+        with current_app.app_context():
+            return Task.__call__(self, *args, **kwargs)
+
+    @property
+    def _app(self):
+        from flask import current_app
+        return current_app.celery
+
+
+celery_app.Task = AppContextTask

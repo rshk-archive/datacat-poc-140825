@@ -1,3 +1,4 @@
+import celery
 import flask
 
 from datacat.web.blueprints.admin import admin_bp
@@ -12,6 +13,10 @@ def make_app():
 
     app.config.from_object('datacat.settings.default')
     app.config.from_envvar('DATACAT_SETTINGS', silent=True)
+
+    app.celery = celery.Celery(app.import_name,
+                               broker=app.config['CELERY_BROKER_URL'])
+    app.celery.conf.update(app.config)
 
     app.plugins = []
     for name in app.config['PLUGINS']:

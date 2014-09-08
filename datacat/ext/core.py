@@ -57,3 +57,8 @@ def get_dataset_resource(dataset_id, resource_id):
 
     return '', 302, {'Location': url}
     # return redirect(url, code=302)
+
+
+@core_plugin.task()
+def dummy_task(name):
+    return 'Hello, {0}!'.format(name)

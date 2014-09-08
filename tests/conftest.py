@@ -112,60 +112,104 @@ def configured_app(request, app_config):
     from datacat.web import app
     app.config.update(app_config)
     app.debug = True
+
+    redis_url = 'redis://localhost:6399/0'
+    app.celery.conf['BROKER_URL'] = redis_url
+    # app.celery.conf['CELERY_BROKER_URL'] = redis_url
+    app.celery.conf['CELERY_RESULT_BACKEND'] = redis_url
+
     create_tables(connect(**app.config['DATABASE']))
     return app
 
 
-class RunningAppInfo(object):
-    def __init__(self, url, app):
-        self.url = url
-        self.app = app
+# class RunningAppInfo(object):
+#     def __init__(self, url, app):
+#         self.url = url
+#         self.app = app
 
-    def make_url(self, path):
-        return urljoin(self.url, path)
+#     def make_url(self, path):
+#         return urljoin(self.url, path)
 
-    def request(self, method, url, *a, **kw):
-        return requests.request(method, self.make_url(url), *a, **kw)
+#     def request(self, method, url, *a, **kw):
+#         return requests.request(method, self.make_url(url), *a, **kw)
 
-    def get(self, url, *a, **kw):
-        return self.request('GET', url, *a, **kw)
+#     def get(self, url, *a, **kw):
+#         return self.request('GET', url, *a, **kw)
 
-    def post(self, url, *a, **kw):
-        return self.request('POST', url, *a, **kw)
+#     def post(self, url, *a, **kw):
+#         return self.request('POST', url, *a, **kw)
 
-    def put(self, url, *a, **kw):
-        return self.request('PUT', url, *a, **kw)
+#     def put(self, url, *a, **kw):
+#         return self.request('PUT', url, *a, **kw)
 
-    def patch(self, url, *a, **kw):
-        return self.request('PATCH', url, *a, **kw)
+#     def patch(self, url, *a, **kw):
+#         return self.request('PATCH', url, *a, **kw)
 
-    def delete(self, url, *a, **kw):
-        return self.request('DELETE', url, *a, **kw)
+#     def delete(self, url, *a, **kw):
+#         return self.request('DELETE', url, *a, **kw)
+
+
+# @pytest.fixture(scope='module')
+# def running_app(request, app_config):
+#     # Run the application in a subprocess on a random port
+#     import multiprocessing
+#     from datacat.web import app
+
+#     app.config.update(app_config)
+
+#     create_tables(connect(**app.config['DATABASE']))
+
+#     HOST, PORT = '127.0.0.1', 5088
+
+#     def run_app():
+#         app.run(host=HOST, port=PORT, debug=True)
+
+#     proc = multiprocessing.Process(target=run_app)
+#     proc.start()
+#     time.sleep(5)  # give it some time to start
+
+#     def cleanup():
+#         proc.terminate()
+#         proc.join()
+
+#     request.addfinalizer(cleanup)
+
+#     return RunningAppInfo(url='http://{0}:{1}'.format(HOST, PORT), app=app)
 
 
 @pytest.fixture(scope='module')
-def running_app(request, app_config):
-    # Run the application in a subprocess on a random port
-    import multiprocessing
-    from datacat.web import app
-
-    app.config.update(app_config)
-
-    create_tables(connect(**app.config['DATABASE']))
-
-    HOST, PORT = '127.0.0.1', 5088
-
-    def run_app():
-        app.run(host=HOST, port=PORT, debug=True)
-
-    proc = multiprocessing.Process(target=run_app)
-    proc.start()
-    time.sleep(5)  # give it some time to start
+def redis_instance(request):
+    import subprocess
+    import tempfile
+    tempdir = tempfile.mkdtemp()
+    command = ['redis-server', '--port', '6399']
+    proc = subprocess.Popen(command, cwd=tempdir)
 
     def cleanup():
         proc.terminate()
-        proc.join()
+        proc.wait()
 
     request.addfinalizer(cleanup)
 
-    return RunningAppInfo(url='http://{0}:{1}'.format(HOST, PORT), app=app)
+    time.sleep(1)
+    return ('localhost', 6399)
+
+
+@pytest.fixture(scope='module')
+def celery_worker(request, configured_app):
+    import multiprocessing
+
+    configured_app.celery.conf.BROKER_URL = 'redis://localhost:6399/0'
+    configured_app.celery.conf.CELERY_RESULT_BACKEND \
+        = 'redis://localhost:6399/0'
+
+    def run():
+        configured_app.celery.worker_main()
+
+    proc = multiprocessing.Process(target=run)
+    proc.start()
+
+    def cleanup():
+        proc.terminate()
+
+    request.addfinalizer(cleanup)
