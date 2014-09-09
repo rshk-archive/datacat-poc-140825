@@ -10,7 +10,6 @@ class Plugin(object):
         """
         self.import_name = import_name
         self._hooks = defaultdict(list)
-        self._tasks = []
         self._blueprint = None
 
     def setup(self, app):
@@ -58,5 +57,5 @@ class Plugin(object):
         Decorator function to register a celery task
         """
 
-        from datacat.tasks import celery_app
+        from datacat.core import celery_app
         return celery_app.task(*a, **kw)

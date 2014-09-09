@@ -12,31 +12,33 @@ Will setup and run:
              Don't use this in production!
 """
 
+REDIS_PORT = 6389
+WEBSERVER_PORT = 8080
+
+
 import multiprocessing
 import tempfile
 import time
 import subprocess
 
-from datacat.web import make_app
-from datacat.tasks import make_celery
+from datacat.core import app, celery_app
 
 
 def run_webapp():
-    app = make_app()
-    app.run(host='127.0.0.1', port=8080)
+    app.run(host='127.0.0.1', port=WEBSERVER_PORT)
 
 
 def run_celery():
-    app = make_app()
-    app.config['CELERY_BROKER_URL'] = 'redis://127.0.0.1:6399/0'
-    celery_app = make_celery(app)
+    redis_url = 'redis://127.0.0.1:{0}/0'.format(REDIS_PORT)
+    celery_app.conf.BROKER_URL = redis_url
+    celery_app.conf.RESULT_BACKEND = redis_url
     celery_app.worker_main(argv=['datacat.launcher'])
 
 
 def run_redis():
     tempdir = tempfile.mkdtemp()
     # Note we are using a non-standard port (would be 6379)
-    proc = subprocess.Popen(['redis-server', '--port', '6399'],
+    proc = subprocess.Popen(['redis-server', '--port', str(REDIS_PORT)],
                             cwd=tempdir)
     proc.wait()  # todo: we need to abort if redis-server command missing!
 

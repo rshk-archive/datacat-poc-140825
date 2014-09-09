@@ -1,6 +1,7 @@
 from flask import g
 import psycopg2
 import psycopg2.extras
+from werkzeug.local import LocalProxy
 
 
 def connect(database, user=None, password=None, host='localhost', port=5432):
@@ -67,3 +68,6 @@ def get_db():
     if not hasattr(g, 'database'):
         g.database = connect(**current_app.config['DATABASE'])
     return g.database
+
+
+db = LocalProxy(get_db)

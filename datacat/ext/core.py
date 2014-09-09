@@ -61,4 +61,5 @@ def get_dataset_resource(dataset_id, resource_id):
 
 @core_plugin.task()
 def dummy_task(name):
+    open('/tmp/task-done', 'w').write('TASK DONE\n')
     return 'Hello, {0}!'.format(name)

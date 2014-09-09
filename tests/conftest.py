@@ -2,14 +2,30 @@ import os
 import random
 import time
 from urlparse import urlparse, urljoin
+import shutil
 
 import requests
 import pytest
 
 from datacat.db import create_tables, connect
+from datacat.core import app, celery_app
 
 
 POSTGRES_ENV_NAME = 'POSTGRES_URL'
+
+
+def _celery_testing_conf():
+    return dict(
+        BROKER_URL='redis://localhost:6399/0',
+        CELERY_RESULT_BACKEND='redis://localhost:6399/0',
+        CELERY_ACCEPT_CONTENT=['json', 'msgpack', 'yaml'],
+        CELERY_ALWAYS_EAGER=True,
+    )
+
+
+def _celery_testing_conf_py():
+    return "\n".join("{0} = {1!r}".format(key, val)
+                     for key, val in _celery_testing_conf().iteritems()) + "\n"
 
 
 @pytest.fixture(scope='module')
@@ -109,15 +125,9 @@ def app_config(postgres_user_conf):
 @pytest.fixture(scope='module')
 def configured_app(request, app_config):
     # Run the application in a subprocess on a random port
-    from datacat.web import app
     app.config.update(app_config)
     app.debug = True
-
-    redis_url = 'redis://localhost:6399/0'
-    app.celery.conf['BROKER_URL'] = redis_url
-    # app.celery.conf['CELERY_BROKER_URL'] = redis_url
-    app.celery.conf['CELERY_RESULT_BACKEND'] = redis_url
-
+    celery_app.conf.update(_celery_testing_conf())
     create_tables(connect(**app.config['DATABASE']))
     return app
 
@@ -188,6 +198,7 @@ def redis_instance(request):
     def cleanup():
         proc.terminate()
         proc.wait()
+        shutil.rmtree(tempdir)
 
     request.addfinalizer(cleanup)
 
@@ -195,21 +206,52 @@ def redis_instance(request):
     return ('localhost', 6399)
 
 
-@pytest.fixture(scope='module')
-def celery_worker(request, configured_app):
-    import multiprocessing
+# @pytest.fixture(scope='module')
+# def celery_worker(request, configured_app):
+#     import multiprocessing
 
-    configured_app.celery.conf.BROKER_URL = 'redis://localhost:6399/0'
-    configured_app.celery.conf.CELERY_RESULT_BACKEND \
-        = 'redis://localhost:6399/0'
+#     with configured_app.app_context():
+#         from datacat.core import celery_app
+#         celery_app.conf.update(_celery_testing_conf())
 
-    def run():
-        configured_app.celery.worker_main()
+#         def run():
+#             celery_app.worker_main()
 
-    proc = multiprocessing.Process(target=run)
-    proc.start()
+#         proc = multiprocessing.Process(target=run)
+#         proc.start()
 
-    def cleanup():
-        proc.terminate()
+#         def cleanup():
+#             proc.terminate()
+#             proc.join(3)
+#             if proc.is_alive():
+#                 os.kill(proc.pid, 9)
 
-    request.addfinalizer(cleanup)
+#         request.addfinalizer(cleanup)
+
+
+# @pytest.fixture(scope='module')
+# def celery_worker(request):
+#     import subprocess
+#     import tempfile
+#     tempdir = tempfile.mkdtemp()
+#     conf_file = os.path.join(tempdir, 'celery_conf.py')
+#     with open(conf_file, 'w') as fp:
+#         fp.write('# Celery configuration for tests\n')
+#         fp.write(_celery_testing_conf_py())
+
+#     command = [
+#         'celery', 'worker',
+#         '--app=datacat.core.celery_app',
+#         '--config=celery_conf',
+#         '--broker=redis://localhost:6399']
+#     proc = subprocess.Popen(command, cwd=tempdir)
+
+#     def cleanup():
+#         proc.terminate()
+#         proc.wait()
+#         shutil.rmtree(tempdir)
+
+#     request.addfinalizer(cleanup)
+
+#     time.sleep(1)
+#     return

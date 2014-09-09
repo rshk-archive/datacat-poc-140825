@@ -1,8 +1,8 @@
 import pytest
 
 
-@pytest.mark.xfail(True, reason="Not supported yet")
-def test_simple_async_task(configured_app, redis_instance, celery_worker):
+def test_simple_async_task(configured_app):
     from datacat.ext.core import dummy_task
-    result = dummy_task.delay('world')
-    assert result.get() == 'Hello, world!'
+    with configured_app.app_context():
+        result = dummy_task.delay('world')
+        assert result.get(timeout=2) == 'Hello, world!'
