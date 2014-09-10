@@ -1,14 +1,10 @@
 import os
 import random
 import time
-from urlparse import urlparse, urljoin
+from urlparse import urlparse
 import shutil
 
-import requests
 import pytest
-
-from datacat.db import create_tables, connect
-from datacat.core import app, celery_app
 
 
 POSTGRES_ENV_NAME = 'POSTGRES_URL'
@@ -49,6 +45,7 @@ def postgres_conf():
 
 @pytest.fixture(scope='module')
 def postgres_admin_db(request, postgres_conf):
+    from datacat.db import connect
     conn = connect(**postgres_conf)
     request.addfinalizer(lambda: conn.close())
     return conn
@@ -56,6 +53,7 @@ def postgres_admin_db(request, postgres_conf):
 
 @pytest.fixture(scope='module')
 def postgres_user_conf(request, postgres_conf):
+    from datacat.db import connect
     conn = connect(**postgres_conf)
 
     randomcode = random.randint(0, 999999)
@@ -106,6 +104,7 @@ def postgres_user_conf(request, postgres_conf):
 
 @pytest.fixture
 def postgres_user_db(request, postgres_user_conf):
+    from datacat.db import connect
     conn = connect(**postgres_user_conf)
     request.addfinalizer(lambda: conn.close())
     return conn
@@ -125,66 +124,15 @@ def app_config(postgres_user_conf):
 @pytest.fixture(scope='module')
 def configured_app(request, app_config):
     # Run the application in a subprocess on a random port
+    from datacat.db import create_tables, connect
+    from datacat.core import make_app, finalize_app, celery_app
+    app = make_app()
     app.config.update(app_config)
     app.debug = True
     celery_app.conf.update(_celery_testing_conf())
     create_tables(connect(**app.config['DATABASE']))
+    finalize_app(app)
     return app
-
-
-# class RunningAppInfo(object):
-#     def __init__(self, url, app):
-#         self.url = url
-#         self.app = app
-
-#     def make_url(self, path):
-#         return urljoin(self.url, path)
-
-#     def request(self, method, url, *a, **kw):
-#         return requests.request(method, self.make_url(url), *a, **kw)
-
-#     def get(self, url, *a, **kw):
-#         return self.request('GET', url, *a, **kw)
-
-#     def post(self, url, *a, **kw):
-#         return self.request('POST', url, *a, **kw)
-
-#     def put(self, url, *a, **kw):
-#         return self.request('PUT', url, *a, **kw)
-
-#     def patch(self, url, *a, **kw):
-#         return self.request('PATCH', url, *a, **kw)
-
-#     def delete(self, url, *a, **kw):
-#         return self.request('DELETE', url, *a, **kw)
-
-
-# @pytest.fixture(scope='module')
-# def running_app(request, app_config):
-#     # Run the application in a subprocess on a random port
-#     import multiprocessing
-#     from datacat.web import app
-
-#     app.config.update(app_config)
-
-#     create_tables(connect(**app.config['DATABASE']))
-
-#     HOST, PORT = '127.0.0.1', 5088
-
-#     def run_app():
-#         app.run(host=HOST, port=PORT, debug=True)
-
-#     proc = multiprocessing.Process(target=run_app)
-#     proc.start()
-#     time.sleep(5)  # give it some time to start
-
-#     def cleanup():
-#         proc.terminate()
-#         proc.join()
-
-#     request.addfinalizer(cleanup)
-
-#     return RunningAppInfo(url='http://{0}:{1}'.format(HOST, PORT), app=app)
 
 
 @pytest.fixture(scope='module')
@@ -227,31 +175,3 @@ def redis_instance(request):
 #                 os.kill(proc.pid, 9)
 
 #         request.addfinalizer(cleanup)
-
-
-# @pytest.fixture(scope='module')
-# def celery_worker(request):
-#     import subprocess
-#     import tempfile
-#     tempdir = tempfile.mkdtemp()
-#     conf_file = os.path.join(tempdir, 'celery_conf.py')
-#     with open(conf_file, 'w') as fp:
-#         fp.write('# Celery configuration for tests\n')
-#         fp.write(_celery_testing_conf_py())
-
-#     command = [
-#         'celery', 'worker',
-#         '--app=datacat.core.celery_app',
-#         '--config=celery_conf',
-#         '--broker=redis://localhost:6399']
-#     proc = subprocess.Popen(command, cwd=tempdir)
-
-#     def cleanup():
-#         proc.terminate()
-#         proc.wait()
-#         shutil.rmtree(tempdir)
-
-#     request.addfinalizer(cleanup)
-
-#     time.sleep(1)
-#     return

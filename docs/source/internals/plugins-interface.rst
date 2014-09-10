@@ -9,13 +9,6 @@ functionality such as:
 - expose celery tasks
 
 
-.. todo:: We need to figure out a better way to register tasks: the
-          decorator must return a Task object for things to work;
-          better, it should return a task wrapping an application
-          context. Problem is, we don't have an application yet at
-          task definition time..
-
-
 .. py:module:: datacat.ext.base
 
 
@@ -46,8 +39,8 @@ Example plugin
 	# A dataset was created -- let's do something!
         do_something_with_dataset.delay(dataset_id)
 
-    @core_plugin.hook('dataset_create')
-    def do_something_with_dataset(dataset_id, config):
+    @core_plugin.task(name=__name__ + '.do_something_with_dataset')
+    def do_something_with_dataset(dataset_id):
         pass
 
     @core_plugin.route('/data/<int:dataset_id>/my-custom-view')

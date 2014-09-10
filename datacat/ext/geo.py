@@ -13,7 +13,16 @@ from datacat.ext.base import Plugin
 from datacat.web.utils import json_view
 
 
-geo_plugin = Plugin(__name__)
+class GeoPlugin(Plugin):
+    def install(self):
+        # Create database schema
+        pass
+
+    def uninstall(self):
+        pass
+
+
+geo_plugin = GeoPlugin(__name__)
 
 
 @geo_plugin.hook('make_dataset_metadata')

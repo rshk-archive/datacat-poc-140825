@@ -1,7 +1,7 @@
 import pytest
 import psycopg2
 
-from datacat.db import create_tables, drop_tables
+from datacat.db import create_tables, drop_tables, DbInfoDict
 
 
 def test_table_create_drop(postgres_user_db):
@@ -65,3 +65,46 @@ def test_db_crud(postgres_user_db):
         data = list(cur.fetchall())
         assert len(data) == 1
         assert data[0]['metadata']['name'] == 'foo'
+
+
+def test_db_info_table(postgres_user_db):
+    db_info = DbInfoDict(postgres_user_db)
+
+    assert len(db_info) == 0
+    assert list(db_info) == []
+
+    with pytest.raises(KeyError):
+        db_info['doesnotexist']
+
+    db_info['foobar'] = 'Foobar Value'
+    assert len(db_info) == 1
+    assert list(db_info) == ['foobar']
+    assert db_info['foobar'] == 'Foobar Value'
+
+    db_info['foobar'] = 'Foobar Value 2'
+    assert len(db_info) == 1
+    assert list(db_info) == ['foobar']
+    assert db_info['foobar'] == 'Foobar Value 2'
+
+    db_info['foo'] = 'FOO'
+    assert len(db_info) == 2
+    assert sorted(list(db_info)) == ['foo', 'foobar']
+    assert db_info['foo'] == 'FOO'
+    assert db_info['foobar'] == 'Foobar Value 2'
+
+    assert sorted(list(db_info.iteritems())) == [
+        ('foo', 'FOO'),
+        ('foobar', 'Foobar Value 2'),
+    ]
+
+    del db_info['foobar']
+    assert len(db_info) == 1
+    assert list(db_info) == ['foo']
+    assert db_info['foo'] == 'FOO'
+
+    with pytest.raises(KeyError):
+        db_info['foobar']
+
+    assert sorted(list(db_info.iteritems())) == [
+        ('foo', 'FOO'),
+    ]
