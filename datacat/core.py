@@ -128,7 +128,9 @@ def make_app(config=None):
     app = make_flask_app(config)
     celery_app = make_celery(app.config)
     celery_app.set_current()
-    create_tables(connect(**app.config['DATABASE']))
+    _adm_conn = connect(**app.config['DATABASE'])
+    _adm_conn.autocommit = True
+    create_tables(_adm_conn)
     finalize_app(app)
     return app
 

@@ -4,8 +4,8 @@ import psycopg2
 from datacat.db import create_tables, drop_tables, DbInfoDict
 
 
-def test_table_create_drop(postgres_user_db):
-    conn = postgres_user_db
+def test_table_create_drop(postgres_user_db_ac):
+    conn = postgres_user_db_ac
 
     create_tables(conn)
     with pytest.raises(Exception):
@@ -18,7 +18,6 @@ def test_table_create_drop(postgres_user_db):
 
 def test_db_large_objects(postgres_user_db):
     conn = postgres_user_db
-    conn.autocommit = False
 
     lobject = conn.lobject(oid=0, mode='wb')
     lo_oid = lobject.oid
@@ -34,10 +33,10 @@ def test_db_large_objects(postgres_user_db):
         conn.lobject(oid=lo_oid, mode='rb')
 
 
-def test_db_crud(postgres_user_db):
+def test_db_crud(postgres_user_db, postgres_user_db_ac):
     conn = postgres_user_db
 
-    create_tables(conn)
+    create_tables(postgres_user_db_ac)
 
     with conn.cursor() as cur:
         cur.execute("SELECT * FROM resource;")

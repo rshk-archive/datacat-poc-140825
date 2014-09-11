@@ -55,6 +55,7 @@ def postgres_admin_db(request, postgres_conf):
 def postgres_user_conf(request, postgres_conf):
     from datacat.db import connect
     conn = connect(**postgres_conf)
+    conn.autocommit = True
 
     randomcode = random.randint(0, 999999)
     name = 'dtctest_{0:06d}'.format(randomcode)
@@ -65,8 +66,6 @@ def postgres_user_conf(request, postgres_conf):
 
     # For this reason, we need to set the connection isolation level
     # to "autocommit"
-
-    conn.autocommit = True
 
     with conn.cursor() as cur:
         cur.execute("""
@@ -106,6 +105,17 @@ def postgres_user_conf(request, postgres_conf):
 def postgres_user_db(request, postgres_user_conf):
     from datacat.db import connect
     conn = connect(**postgres_user_conf)
+    conn.autocommit = False
+    request.addfinalizer(lambda: conn.close())
+    return conn
+
+
+@pytest.fixture
+def postgres_user_db_ac(request, postgres_user_conf):
+    """User database with autocommit on"""
+    from datacat.db import connect
+    conn = connect(**postgres_user_conf)
+    conn.autocommit = True
     request.addfinalizer(lambda: conn.close())
     return conn
 
@@ -113,10 +123,10 @@ def postgres_user_db(request, postgres_user_conf):
 @pytest.fixture(scope='module')
 def app_config(postgres_user_conf):
     from flask.config import Config
-    from datacat.settings import default
+    from datacat.settings import testing
 
     conf = Config('')
-    conf.from_object(default)
+    conf.from_object(testing)
     conf['DATABASE'] = postgres_user_conf
     return conf
 

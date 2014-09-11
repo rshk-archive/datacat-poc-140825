@@ -1,5 +1,6 @@
 from collections import MutableMapping
 import json
+import functools
 
 from flask import g
 import psycopg2
@@ -22,7 +23,8 @@ def create_tables(conn):
 
     # We need to be in autocommit mode (i.e. out of transactions)
     # in order to create tables / do administrative stuff..
-    conn.autocommit = True
+    if not conn.autocommit:
+        raise ValueError("Was expecting a connection with autocommit on")
 
     # ------------------------------------------------------------
     # See this: http://stackoverflow.com/questions/18404055
@@ -56,7 +58,8 @@ def create_tables(conn):
 
 
 def drop_tables(conn):
-    conn.autocommit = True
+    if not conn.autocommit:
+        raise ValueError("Was expecting a connection with autocommit on")
 
     with conn.cursor() as cur:
         cur.execute("""
@@ -66,11 +69,47 @@ def drop_tables(conn):
         """)
 
 
+def _cached(key_name):
+    def decorator(func):
+        @functools.wraps(func)
+        def wrapped():
+            if not hasattr(g, key_name):
+                setattr(g, key_name, func())
+            return getattr(g, key_name)
+        return wrapped
+    return decorator
+
+
+# def get_db():
+#     from flask import current_app
+#     if not hasattr(g, 'database'):
+#         g.database = connect(**current_app.config['DATABASE'])
+#         g.database.autocommit = False
+#     return g.database
+
+
+# def get_admin_db():
+#     from flask import current_app
+#     if not hasattr(g, 'admin_database'):
+#         g.admin_database = connect(**current_app.config['DATABASE'])
+#         g.admin_database.autocommit = True
+#     return g.admin_database
+
+
+@_cached('_database')
 def get_db():
     from flask import current_app
-    if not hasattr(g, 'database'):
-        g.database = connect(**current_app.config['DATABASE'])
-    return g.database
+    c = connect(**current_app.config['DATABASE'])
+    c.autocommit = False
+    return c
+
+
+@_cached('_admin_database')
+def get_admin_db():
+    from flask import current_app
+    c = connect(**current_app.config['DATABASE'])
+    c.autocommit = True
+    return c
 
 
 class DbInfoDict(MutableMapping):
@@ -129,4 +168,5 @@ class DbInfoDict(MutableMapping):
 
 
 db = LocalProxy(get_db)
+admin_db = LocalProxy(get_admin_db)
 db_info = LocalProxy(lambda: DbInfoDict(get_db()))
