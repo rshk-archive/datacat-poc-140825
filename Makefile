@@ -45,7 +45,7 @@ test_plugins:
 	py.test $(PYTEST_ARGS) ./tests/plugins
 
 setup_tests:
-	pip install pytest pytest-pep8 pytest-cov requests
+	pip install pytest pytest-pep8 pytest-cov mock
 
 docs:
 	$(MAKE) -C docs html
