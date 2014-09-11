@@ -33,10 +33,12 @@ install:
 install_dev:
 	python setup.py develop
 
-check:
-	py.test -vvv --pep8 --cov=$(BASE_PACKAGE) --cov-report=term-missing ./tests
+check: test
 
-test: check
+test: test_core
+
+test_core:
+	py.test -vvv --pep8 --cov=$(BASE_PACKAGE) --cov-report=term-missing ./tests/core
 
 setup_tests:
 	pip install pytest pytest-pep8 pytest-cov requests
