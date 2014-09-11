@@ -76,3 +76,55 @@ Defaults to ``True``. Indicates whether the "raw" resource should be
 exposed directly or not. Setting this to ``False`` is especially
 useful in cases in which the resource requires further cleanup before
 exposing through the API.
+
+
+Key: ``geo``
+============
+
+Hold configuration for extraction of geographical data from a dataset.
+
+
+Key: ``geo.enabled``
+--------------------
+
+If set to ``True``, indicates that this dataset should be treated as a
+geographical dataset by the Geo plugin.
+
+
+Key: ``geo.importer``
+---------------------
+
+The name of the geographical data importer to be used to extract data
+from the resources.
+
+Defaults to ``autodiscovery``.
+
+Accepted values:
+
+- ``autodiscovery``: automatically find data inside archives,
+  determine the data type and import in a PostGIS table.
+
+  Note that geometries in all the contained resources must be of the
+  same type.
+
+
+Key ``geo.default_projection``
+------------------------------
+
+Default projection to be used for datasets that are not specifying one
+(eg. shapefiles missing a ``.prj`` file).
+
+Must be in a format recognised by `gdalsrsinfo`_.
+
+.. _gdalsrsinfo: http://www.gdal.org/gdalsrsinfo.html
+
+.. todo:: Support reading projection information in a safe way using
+          gdalsrsinfo; from the docs:
+
+               srs_def may be the filename of a dataset supported by
+	       GDAL/OGR from which to extract SRS information OR any of
+	       the usual GDAL/OGR forms (complete WKT, PROJ.4, EPSG:n
+	       or a file containing the SRS)
+
+	  Of course we don't want to allow the user to specify a path
+	  on the local filesystem!
