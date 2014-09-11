@@ -23,19 +23,16 @@ setup(
     description='',
     long_description=longdesc,
     install_requires=[
-        'Flask',
-        # 'flask-restful',
-        'psycopg2',
-        'nicelog',
-        'celery[redis]',
+        'Flask',  # Base framework
+        'psycopg2',  # For database connection
+        'nicelog',  # For pretty logging on console
+        'celery[redis]',  # For async tasks
+        'requests',  # To download data from HTTP(S)
     ],
     # tests_require=tests_require,
     # test_suite='tests',
     classifiers=[
         'License :: OSI Approved :: Apache Software License',
-        # 'License :: OSI Approved :: BSD License',
-        # 'License :: OSI Approved :: MIT License',
-        # 'License :: Public Domain',
 
         'Development Status :: 1 - Planning',
         # 'Development Status :: 2 - Pre-Alpha',
