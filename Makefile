@@ -1,6 +1,7 @@
 ## Standard makefile for Python tests
 
 BASE_PACKAGE = datacat
+PYTEST_ARGS = -vvv --pep8 --cov=$(BASE_PACKAGE) --cov-report=term-missing
 
 .PHONY: all upload
 
@@ -38,7 +39,10 @@ check: test
 test: test_core
 
 test_core:
-	py.test -vvv --pep8 --cov=$(BASE_PACKAGE) --cov-report=term-missing ./tests/core
+	py.test $(PYTEST_ARGS) ./tests/core
+
+test_plugins:
+	py.test $(PYTEST_ARGS) ./tests/plugins
 
 setup_tests:
 	pip install pytest pytest-pep8 pytest-cov requests
@@ -50,3 +54,8 @@ publish_docs: docs
 	ghp-import -n -p ./docs/build/html
 	@echo
 	@echo "HTML output published on github-pages"
+
+cleanup:
+	find -name '*~' -print0 | xargs -0 rm -rfv
+	find -name '*.pyc' -print0 | xargs -0 rm -rfv
+	find -name __pycache__ -print0 | xargs -0 rm -rfv
