@@ -13,6 +13,7 @@ Contents:
 
     deploy/index
     api/index
+    plugins/index
     internals/index
     development/index
 
