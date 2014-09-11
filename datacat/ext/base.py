@@ -124,5 +124,5 @@ class Plugin(object):
                     pass
         """
 
-        from datacat.core import celery_app
-        return celery_app.task(*a, **kw)
+        from datacat.core import celery_placeholder_app
+        return celery_placeholder_app.task(*a, **kw)

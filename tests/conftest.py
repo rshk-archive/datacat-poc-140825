@@ -12,7 +12,7 @@ POSTGRES_ENV_NAME = 'POSTGRES_URL'
 
 def _celery_testing_conf():
     return dict(
-        BROKER_URL='redis://localhost:6399/0',
+        CELERY_BROKER_URL='redis://localhost:6399/0',
         CELERY_RESULT_BACKEND='redis://localhost:6399/0',
         CELERY_ACCEPT_CONTENT=['json', 'msgpack', 'yaml'],
         CELERY_ALWAYS_EAGER=True,
@@ -124,14 +124,12 @@ def app_config(postgres_user_conf):
 @pytest.fixture(scope='module')
 def configured_app(request, app_config):
     # Run the application in a subprocess on a random port
-    from datacat.db import create_tables, connect
-    from datacat.core import make_app, finalize_app, celery_app
-    app = make_app()
-    app.config.update(app_config)
+    from datacat.core import make_app
+
+    app_config.update(_celery_testing_conf())
+
+    app = make_app(app_config)
     app.debug = True
-    celery_app.conf.update(_celery_testing_conf())
-    create_tables(connect(**app.config['DATABASE']))
-    finalize_app(app)
     return app
 
 

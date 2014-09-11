@@ -14,19 +14,25 @@ from datacat.web.blueprints.admin import admin_bp
 from datacat.web.blueprints.public import public_bp
 
 
-def make_app():
+def make_flask_app(config=None):
     app = Flask('datacat')
     app.register_blueprint(admin_bp, url_prefix='/api/1/admin')
     app.register_blueprint(public_bp, url_prefix='/api/1/data')
     app.config.update(make_config())
+    if config is not None:
+        app.config.update(config)
     return app
 
 
-def make_celery(app):
-    celery_app = Celery(app.import_name,
-                        broker=app.config['CELERY_BROKER_URL'],
-                        backend=app.config['CELERY_RESULT_BACKEND'])
-    celery_app.conf.update(app.config)
+def make_celery(config):
+    # celery_app = Celery('datacat',
+    #                     broker=config['CELERY_BROKER_URL'],
+    #                     backend=config['CELERY_RESULT_BACKEND'])
+
+    celery_app = celery_placeholder_app
+    celery_app.broker = config['CELERY_BROKER_URL']
+    # celery_app.backend = config['CELERY_RESULT_BACKEND']
+    celery_app.conf.update(config)
 
     TaskBase = celery_app.Task
 
@@ -113,9 +119,18 @@ def finalize_app(app):
 
         db_info['core.plugins_enabled'] = list(enabled_plugins)
         db_info['core.plugins_installed'] = list(
-            previously_installed_plugins + enabled_plugins)
+            previously_installed_plugins | enabled_plugins)
 
 
-app = make_app()
-celery_app = make_celery(app)
-# finalize_app(app)
+def make_app(config=None):
+    from datacat.db import create_tables, connect
+
+    app = make_flask_app(config)
+    celery_app = make_celery(app.config)
+    celery_app.set_current()
+    create_tables(connect(**app.config['DATABASE']))
+    finalize_app(app)
+    return app
+
+
+celery_placeholder_app = Celery('datacat', set_as_current=False)
