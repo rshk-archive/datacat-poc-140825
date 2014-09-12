@@ -16,7 +16,6 @@ from datacat.ext.base import Plugin
 
 class DummyPlugin(Plugin):
     def install(self):
-        db.autocommit = True
         with db, db.cursor() as cur:
             cur.execute("""
             CREATE TABLE dummy_plugin (
@@ -26,7 +25,6 @@ class DummyPlugin(Plugin):
             """)
 
     def uninstall(self):
-        db.autocommit = True
         with db, db.cursor() as cur:
             cur.execute("""
             DROP TABLE dummy_plugin;
@@ -38,7 +36,6 @@ dummy_plugin = DummyPlugin(__name__ + ':dummy_plugin')
 
 @dummy_plugin.hook(['dataset_create'])
 def on_dataset_create(dataset_id, dataset_conf):
-    db.autocommit = False
     with db, db.cursor() as cur:
         cur.execute("""
         INSERT INTO dummy_plugin
@@ -49,7 +46,6 @@ def on_dataset_create(dataset_id, dataset_conf):
 
 @dummy_plugin.hook(['dataset_update'])
 def on_dataset_update(dataset_id, dataset_conf):
-    db.autocommit = False
     with db, db.cursor() as cur:
         cur.execute("""
         UPDATE dummy_plugin
@@ -60,7 +56,6 @@ def on_dataset_update(dataset_id, dataset_conf):
 
 @dummy_plugin.hook(['dataset_delete'])
 def on_dataset_delete(dataset_id):
-    db.autocommit = False
     with db, db.cursor() as cur:
         cur.execute("""
         DELETE FROM dummy_plugin
