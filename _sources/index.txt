@@ -17,6 +17,11 @@ Contents:
     internals/index
     development/index
 
+Links:
+
+- `Source code on GitHub <https://github.com/rshk/datacat-poc-140825>`_
+- `Online documentation <https://rshk.github.io/datacat-poc-140825/>`_
+
 
 Indices and tables
 ==================
