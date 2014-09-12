@@ -64,7 +64,7 @@ def on_dataset_create_update(dataset_id, dataset_conf):
     .. todo:: We need a common library to download resources honoring caches
     """
 
-    import_geo_resources.delay(dataset_id)
+    import_geo_dataset.delay(dataset_id)
 
 
 @geo_plugin.hook(['dataset_delete'])
@@ -87,6 +87,21 @@ def import_geo_dataset(dataset_id):
     Task to import geographical resources from a dataset
     into a PostGIS table.
     """
+
+    from datacat.db import db
+    with db.cursor() as cur:
+        cur.execute("SELECT id, configuration FROM dataset"
+                    " WHERE id=%s;", (dataset_id,))
+        result = cur.fetchone()
+
+    if result is None:
+        # Should be logged as an error
+        raise NotFound("Dataset not found: {0}".format(dataset_id))
+
+    # - Download data for all the resources
+    # - Discover information inside the resource archive
+    # - Import in a (new) PostgreSQL table
+    #   - use shp2pgsql for the moment..
     pass
 
 
