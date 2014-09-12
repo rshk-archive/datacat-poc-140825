@@ -1,0 +1,227 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Administrative API &mdash; Datacat 0.1a documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Datacat 0.1a documentation" href="../index.html"/>
+        <link rel="up" title="API" href="index.html"/>
+        <link rel="next" title="Public API" href="public.html"/>
+        <link rel="prev" title="API" href="index.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> Datacat</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../deploy/index.html">Deployment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../deploy/settings.html">Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">API</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="">Administrative API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="public.html">Public API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../internals/index.html">Internals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../internals/dataset-configuration.html">Dataset configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../internals/plugins-interface.html">Plugins interface</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Datacat</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">API</a> &raquo;</li>
+      
+    <li>Administrative API</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/api/admin.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="administrative-api">
+<h1>Administrative API<a class="headerlink" href="#administrative-api" title="Permalink to this headline">¶</a></h1>
+<p>The administrative API is used to read/write resources and dataset
+configurations.</p>
+<div class="section" id="get-api-1-admin-resource">
+<h2><tt class="docutils literal"><span class="pre">GET</span> <span class="pre">/api/1/admin/resource/</span></tt><a class="headerlink" href="#get-api-1-admin-resource" title="Permalink to this headline">¶</a></h2>
+<p>List / search resources.</p>
+</div>
+<div class="section" id="post-api-1-admin-resource">
+<h2><tt class="docutils literal"><span class="pre">POST</span> <span class="pre">/api/1/admin/resource/</span></tt><a class="headerlink" href="#post-api-1-admin-resource" title="Permalink to this headline">¶</a></h2>
+<p>Create a new resource, by posting some data.</p>
+<p>The <tt class="docutils literal"><span class="pre">Content-Type</span></tt> header will be stored and sent back when
+<tt class="docutils literal"><span class="pre">GET</span></tt> ting the original data.</p>
+<p>If operation was successful, return <tt class="docutils literal"><span class="pre">201</span></tt> with the newly-created
+resource URL in the <tt class="docutils literal"><span class="pre">Location</span></tt> header.</p>
+</div>
+<div class="section" id="get-api-1-admin-resource-id">
+<h2><tt class="docutils literal"><span class="pre">GET</span> <span class="pre">/api/1/admin/resource/&lt;id&gt;</span></tt><a class="headerlink" href="#get-api-1-admin-resource-id" title="Permalink to this headline">¶</a></h2>
+<p>Get the data for a specific resource.</p>
+<p>On success, return <tt class="docutils literal"><span class="pre">200</span></tt> with the resource data as the response
+body and a <tt class="docutils literal"><span class="pre">Content-type</span></tt> header properly set.</p>
+</div>
+<div class="section" id="put-api-1-admin-resource-id">
+<h2><tt class="docutils literal"><span class="pre">PUT</span> <span class="pre">/api/1/admin/resource/&lt;id&gt;</span></tt><a class="headerlink" href="#put-api-1-admin-resource-id" title="Permalink to this headline">¶</a></h2>
+<p>Update the resource data.</p>
+</div>
+<div class="section" id="delete-api-1-admin-resource-id">
+<h2><tt class="docutils literal"><span class="pre">DELETE</span> <span class="pre">/api/1/admin/resource/&lt;id&gt;</span></tt><a class="headerlink" href="#delete-api-1-admin-resource-id" title="Permalink to this headline">¶</a></h2>
+<p>Delete the resource at once (both data and metadata).</p>
+</div>
+<div class="section" id="get-api-1-admin-resource-id-meta">
+<h2><tt class="docutils literal"><span class="pre">GET</span> <span class="pre">/api/1/admin/resource/&lt;id&gt;/meta</span></tt><a class="headerlink" href="#get-api-1-admin-resource-id-meta" title="Permalink to this headline">¶</a></h2>
+<p>Get the resource metadata, as json.</p>
+</div>
+<div class="section" id="put-api-1-admin-resource-id-meta">
+<h2><tt class="docutils literal"><span class="pre">PUT</span> <span class="pre">/api/1/admin/resource/&lt;id&gt;/meta</span></tt><a class="headerlink" href="#put-api-1-admin-resource-id-meta" title="Permalink to this headline">¶</a></h2>
+<p>Update the resource metadata, from json.</p>
+<p>The metadata object will be replaced.</p>
+<p>Note that <tt class="docutils literal"><span class="pre">Content-type</span></tt> in the request must be set to
+<tt class="docutils literal"><span class="pre">application/json</span></tt>.</p>
+</div>
+<div class="section" id="patch-api-1-admin-resource-id-meta">
+<h2><tt class="docutils literal"><span class="pre">PATCH</span> <span class="pre">/api/1/admin/resource/&lt;id&gt;/meta</span></tt><a class="headerlink" href="#patch-api-1-admin-resource-id-meta" title="Permalink to this headline">¶</a></h2>
+<p>Update the resource metadata, from json.</p>
+<p>The metadata object will be simply updated.</p>
+<p>Note that <tt class="docutils literal"><span class="pre">Content-type</span></tt> in the request must be set to
+<tt class="docutils literal"><span class="pre">application/json</span></tt>.</p>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="public.html" class="btn btn-neutral float-right" title="Public API"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="API"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Samuele Santi.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1a',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

@@ -1,0 +1,329 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>Plugins interface &mdash; Datacat 0.1a documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Datacat 0.1a documentation" href="../index.html"/>
+        <link rel="up" title="Internals" href="index.html"/>
+        <link rel="next" title="Development" href="../development/index.html"/>
+        <link rel="prev" title="Dataset configuration" href="dataset-configuration.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../index.html" class="fa fa-home"> Datacat</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../deploy/index.html">Deployment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../deploy/settings.html">Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../api/index.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../api/admin.html">Administrative API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../api/public.html">Public API</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Internals</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="dataset-configuration.html">Dataset configuration</a></li>
+<li class="toctree-l2 current"><a class="current reference internal" href="">Plugins interface</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../development/index.html">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../development/todolist.html">Todo-List</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../index.html">Datacat</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="index.html">Internals</a> &raquo;</li>
+      
+    <li>Plugins interface</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../_sources/internals/plugins-interface.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="plugins-interface">
+<h1>Plugins interface<a class="headerlink" href="#plugins-interface" title="Permalink to this headline">¶</a></h1>
+<p>Plugins are used to extend the application functionality, by offering
+functionality such as:</p>
+<ul class="simple">
+<li>add views to the API, through a blueprint</li>
+<li>expose some &#8220;hooks&#8221; that will be called in other parts of the application</li>
+<li>expose celery tasks</li>
+</ul>
+<span class="target" id="module-datacat.ext.base"></span><dl class="class">
+<dt id="datacat.ext.base.Plugin">
+<em class="property">class </em><tt class="descclassname">datacat.ext.base.</tt><tt class="descname">Plugin</tt><big>(</big><em>import_name</em><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="datacat.ext.base.Plugin.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>import_name</em><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>config</strong> &#8211; The main application configuration</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.setup">
+<tt class="descname">setup</tt><big>(</big><em>app</em><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.setup" title="Permalink to this definition">¶</a></dt>
+<dd><p>Setup the plugin by attaching an application</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.install">
+<tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.install" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.uninstall">
+<tt class="descname">uninstall</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.uninstall" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.enable">
+<tt class="descname">enable</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.enable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.disable">
+<tt class="descname">disable</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.disable" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.upgrade">
+<tt class="descname">upgrade</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.upgrade" title="Permalink to this definition">¶</a></dt>
+<dd><p>Perform necessary database schema upgrades</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.hook">
+<tt class="descname">hook</tt><big>(</big><em>hook_type</em><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator function to register a &#8220;hook&#8221; function, to be used later for
+various purposes.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hook_type</strong> (<em>str, list, tuple</em>) &#8211; A string (or list/tuple of) indicating the hook(s) to which
+the handler should be attached</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.call_hook">
+<tt class="descname">call_hook</tt><big>(</big><em>hook_type</em>, <em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.call_hook" title="Permalink to this definition">¶</a></dt>
+<dd><p>Helper function to call all the handlers for a given hook
+type in this plugin.</p>
+<p>Extra arguments will be passed directly to the hook handler(s)</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>hook_type</strong> &#8211; The hook type</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body">a list of return values for all the called handlers</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.route">
+<tt class="descname">route</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.route" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator function to register an API view for this plugin.</p>
+<p>The underlying <tt class="xref py py-meth docutils literal"><span class="pre">Blueprint.route()</span></tt> will be called.</p>
+<p>Blueprints are then registered under the <tt class="docutils literal"><span class="pre">/api/1/</span></tt> prefix.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.base.Plugin.task">
+<tt class="descname">task</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin.task" title="Permalink to this definition">¶</a></dt>
+<dd><p>Decorator function to register a celery task.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>Tasks should be registered with their full namespace, eg:</p>
+<div class="last highlight-python"><div class="highlight"><pre><span class="nd">@myplugin.task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&#39;.mytask&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">mytask</span><span class="p">(</span><span class="n">foo</span><span class="p">,</span> <span class="n">bar</span><span class="p">):</span>
+    <span class="k">pass</span>
+</pre></div>
+</div>
+</div>
+</dd></dl>
+
+</dd></dl>
+
+<div class="section" id="example-plugin">
+<h2>Example plugin<a class="headerlink" href="#example-plugin" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">url_for</span>
+<span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">NotFound</span>
+
+<span class="kn">from</span> <span class="nn">datacat.db</span> <span class="kn">import</span> <span class="n">get_db</span>
+<span class="kn">from</span> <span class="nn">datacat.ext.base</span> <span class="kn">import</span> <span class="n">Plugin</span>
+<span class="kn">from</span> <span class="nn">datacat.web.utils</span> <span class="kn">import</span> <span class="n">json_view</span>
+
+
+<span class="n">core_plugin</span> <span class="o">=</span> <span class="n">Plugin</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
+
+
+<span class="nd">@core_plugin.hook</span><span class="p">(</span><span class="s">&#39;dataset_create&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">on_dataset_create</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
+    <span class="c"># A dataset was created -- let&#39;s do something!</span>
+    <span class="n">do_something_with_dataset</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
+
+<span class="nd">@core_plugin.task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&#39;.do_something_with_dataset&#39;</span><span class="p">)</span>
+<span class="k">def</span> <span class="nf">do_something_with_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">):</span>
+    <span class="k">pass</span>
+
+<span class="nd">@core_plugin.route</span><span class="p">(</span><span class="s">&#39;/data/&lt;int:dataset_id&gt;/my-custom-view&#39;</span><span class="p">)</span>
+<span class="nd">@json_view</span>
+<span class="k">def</span> <span class="nf">get_dataset_custom_view</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">):</span>
+    <span class="c"># Return something to the user..</span>
+    <span class="k">return</span> <span class="p">{</span><span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="s">&#39;Hello, world!&#39;</span><span class="p">}</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="../development/index.html" class="btn btn-neutral float-right" title="Development"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="dataset-configuration.html" class="btn btn-neutral" title="Dataset configuration"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Samuele Santi.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../',
+            VERSION:'0.1a',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../_static/jquery.js"></script>
+      <script type="text/javascript" src="../_static/underscore.js"></script>
+      <script type="text/javascript" src="../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>
