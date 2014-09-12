@@ -36,7 +36,7 @@ install_dev:
 
 check: test
 
-test: test_core
+test: test_core test_plugins
 
 test_core:
 	py.test $(PYTEST_ARGS) ./tests/core
