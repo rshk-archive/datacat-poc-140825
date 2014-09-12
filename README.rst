@@ -1,9 +1,19 @@
 Data Catalog - PoC 2014-08-25
 #############################
 
-**Project goal:** create a service, talking via RESTful API, to
-provide facilities for storing data, adding metadata, and generating
-"derivates" from the stored data.
+Project goal
+============
+
+Create a service, talking via RESTful API, to provide facilities for
+storing data, adding metadata, and generating "derivates" from the
+stored data.
+
+
+Project documentation
+=====================
+
+Documentation is hosted on GitHub pages:
+http://rshk.github.io/datacat-poc-140825/
 
 
 Technology
@@ -13,7 +23,7 @@ Technology
 
 Mandatory requirements to make the application work.
 
-- Python (Flask, Psycopg2)
+- Python 2.7 (Flask, Psycopg2)
 - PostgreSQL 9.2+ (we need JSON column type) [tested on 9.4]
 - Celery for the asynchronous tasks running facilities
 
@@ -23,6 +33,7 @@ Requirements for plugins shipped with the core, but not mandatory.
 
 - PostGIS (for the geo data plugin)
 - Mapnik (for rendering geo data)
+- shp2pgsql, for importing geo data from shapefiles
 
 .. note:: In order to use Celery-based tasks (only required for
           certain plugins, you'll also need to install and configure a
@@ -79,74 +90,59 @@ For example, PDFs, ODT, MS DOC, ...
 For example, we can create new datasets by aggregating other resources, ...
 
 
-Public interface
-================
+The RESTful API
+===============
 
-**NOTE:** This section is slightly outdated!
+The API v1 exposes two different kinds of endpoints:
 
-The service communicates with the outside using a RESTful API.
-
-The main administrative endpoints are:
-
-- ``/resource/`` - list / search resources
-- ``/resource/<name>`` - GET / PUT / DELETE a resource *data*
-- ``/resource/<name>/metadata`` - GET / PUT / PATCH a resource *metadata*
-
-- ``/dataset/`` - list / search dataset configuration
-- ``/dataset/<name>`` - GET / PUT / PATCH / DELETE a dataset configuration
-
-The main "public" endpoints are:
-
-- ``/<name>/`` - Get metadata about the dataset
-- ``/<name>/<related>/`` - Get "other related" items about the
-  dataset. Plugins are responsible of generating contents here.
-
-The above endpoints should be "mounted" to some URL,
-eg. ``/api/<version>/admin/`` and ``/api/<version>/data/``
-respectively.
+- ``/api/1/admin`` -> the administrative API
+- ``/api/1/data`` -> the public API
 
 
-Resources management
---------------------
+The administrative API
+----------------------
 
-Each resource is a record with the following fields:
+The `administrative API
+<http://rshk.github.io/datacat-poc-140825/api/admin.html>`_ is used to
+manage resources and dataset configurations.
 
-- ``id`` - serial resource id
-- ``metadata`` - JSON metadata of the resource
-- ``mimetype`` - Mimetype as specified during data PUT
-- ``data_oid`` - PostgreSQL large objects oid of the data
+Usually, it would be protected by some authentication / authorization
+layer in case the service is exposed to the public "as-is".
 
 
-Dataset management
-------------------
+The public API
+--------------
 
-Each dataset is simply a json (yaml?) text file describing how to
-build the published dataset.
-
-- ``id``
-- ``configuration``
-- ``configuration_format`` - JSON / YAML
+The `public API
+<http://rshk.github.io/datacat-poc-140825/api/public.html>`_ is
+entirely managed by plugins, which expose their own endpoints to
+republish the datasets in some way.
 
 
 Background service
 ==================
 
-- Periodically check for outdated information, regenerate the dataset
-  metadata + data
-- Optionally support using a message queue (rabbit / redis / ..) for
-  better scheduling of tasks
+The background task execution is implemented using Celery_; periodic
+tasks are scheduled via `Celery Beat`_.
+
+.. _Celery: http://www.celeryproject.org/
+.. _Celery Beat: http://docs.celeryproject.org/en/latest/userguide/periodic-tasks.html
 
 
 Usage
 =====
 
-**Note:** a more appropariate configuration method will be added later on
+.. note:: a more appropariate configuration method will be added later on
+
+The ``DATACAT_SETTINGS`` variable can be used to point to the
+(filesystem) path to a Python module containing configuration
+overrides.
 
 Create a "launcher" script:
 
 .. code-block:: python
 
-    from datacat.web import app
+    from datacat.core import app
 
     # Configure
     # app.config['DATABASE'] = ...
