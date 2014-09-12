@@ -6,7 +6,7 @@ from cgi import parse_header
 import datetime
 import json
 
-from flask import Blueprint, request, url_for
+from flask import Blueprint, request, url_for, current_app
 from werkzeug.exceptions import NotFound
 
 from datacat.db import get_db
@@ -262,6 +262,9 @@ def post_dataset_index():
         """, dict(conf=json.dumps(data), mtime=datetime.datetime.utcnow()))
         dataset_id = cur.fetchone()[0]
 
+    for plugin in current_app.plugins:
+        plugin.call_hook('dataset_create', dataset_id, data)
+
     # Last, retun 201 + Location: header
     location = url_for('.get_dataset_configuration', dataset_id=dataset_id)
     return '', 201, {'Location': location}
@@ -311,6 +314,9 @@ def put_dataset_configuration(dataset_id):
         """, dict(id=dataset_id, configuration=json.dumps(data),
                   mtime=datetime.datetime.utcnow()))
 
+    for plugin in current_app.plugins:
+        plugin.call_hook('dataset_update', dataset_id, data)
+
     return '', 200
 
 
@@ -350,5 +356,8 @@ def delete_dataset_configuration(dataset_id):
         cur.execute("""
         DELETE FROM "dataset" WHERE id = %(id)s;
         """, dict(id=dataset_id))
+
+    for plugin in current_app.plugins:
+        plugin.call_hook('dataset_delete', dataset_id)
 
     return '', 200
