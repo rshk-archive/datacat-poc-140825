@@ -44,8 +44,14 @@ test_core:
 test_plugins:
 	py.test $(PYTEST_ARGS) ./tests/plugins
 
-setup_tests:
+setup_tests: tests/data
 	pip install pytest pytest-pep8 pytest-cov mock
+
+tests/data:
+	git clone https://github.com/rshk/datacat-poc-140825-testdata/ tests/data
+
+update_test_data: tests/data
+	cd tests/data && git pull
 
 docs:
 	$(MAKE) -C docs html
