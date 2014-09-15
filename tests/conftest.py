@@ -5,6 +5,11 @@ from urlparse import urlparse
 import shutil
 
 import pytest
+import py.path
+
+
+TESTS_ROOT_DIR = py.path.local(__file__).dirpath()
+TESTS_DATA_DIR = TESTS_ROOT_DIR.join('data')
 
 
 POSTGRES_ENV_NAME = 'POSTGRES_URL'
@@ -183,3 +188,8 @@ def redis_instance(request):
 #                 os.kill(proc.pid, 9)
 
 #         request.addfinalizer(cleanup)
+
+
+@pytest.fixture
+def data_dir():
+    return TESTS_DATA_DIR
