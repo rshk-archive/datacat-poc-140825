@@ -97,15 +97,11 @@ Key: ``geo.importer``
 The name of the geographical data importer to be used to extract data
 from the resources.
 
-Defaults to ``autodiscovery``.
-
 Accepted values:
 
-- ``autodiscovery``: automatically find data inside archives,
-  determine the data type and import in a PostGIS table.
-
-  Note that geometries in all the contained resources must be of the
-  same type.
+- ``find_shapefiles``: finds shapefiles inside a (possibiy recursive)
+  structure of archives. Extracts all the encountered shapefiles along
+  the path.
 
 
 Key ``geo.default_projection``
@@ -128,3 +124,6 @@ Must be in a format recognised by `gdalsrsinfo`_.
 
 	  Of course we don't want to allow the user to specify a path
 	  on the local filesystem!
+
+.. warning:: Right now, the only supported format is ``EPSG:<number>``
+	     indicating the projection SRID directly.
