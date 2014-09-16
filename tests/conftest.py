@@ -103,6 +103,15 @@ def postgres_user_conf(request, postgres_conf):
     conf['user'] = name
     conf['password'] = name
     conf['database'] = name
+
+    # HACK to create PostGIS extension, used by some plugins
+    _conf = postgres_conf.copy()
+    _conf['database'] = name
+    _conn = connect(**_conf)
+    _conn.autocommit = True
+    with _conn.cursor() as cur:
+        cur.execute("CREATE EXTENSION postgis;")
+
     return conf
 
 
@@ -138,13 +147,13 @@ def app_config(postgres_user_conf):
 
 @pytest.fixture(scope='module')
 def configured_app(request, app_config):
-    # Run the application in a subprocess on a random port
     from datacat.core import make_app
 
     app_config.update(_celery_testing_conf())
 
     app = make_app(app_config)
     app.debug = True
+
     return app
 
 
@@ -165,29 +174,6 @@ def redis_instance(request):
 
     time.sleep(1)
     return ('localhost', 6399)
-
-
-# @pytest.fixture(scope='module')
-# def celery_worker(request, configured_app):
-#     import multiprocessing
-
-#     with configured_app.app_context():
-#         from datacat.core import celery_app
-#         celery_app.conf.update(_celery_testing_conf())
-
-#         def run():
-#             celery_app.worker_main()
-
-#         proc = multiprocessing.Process(target=run)
-#         proc.start()
-
-#         def cleanup():
-#             proc.terminate()
-#             proc.join(3)
-#             if proc.is_alive():
-#                 os.kill(proc.pid, 9)
-
-#         request.addfinalizer(cleanup)
 
 
 @pytest.fixture
