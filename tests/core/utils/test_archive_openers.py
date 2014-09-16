@@ -17,7 +17,7 @@ def test_archive_zip(data_dir):
     ] for i in xrange(4))))
 
     assert archive.get('roads-00/roads-00.shp').open().read(4) \
-        == '\x00\x00\x27\x0a'
+        == b'\x00\x00\x27\x0a'
 
 
 def test_archive_tar_builtin(data_dir):

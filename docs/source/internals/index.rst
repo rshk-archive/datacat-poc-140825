@@ -9,3 +9,4 @@ Contents:
     :glob:
 
     *
+    utils/index
