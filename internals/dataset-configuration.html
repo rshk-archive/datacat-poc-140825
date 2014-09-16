@@ -68,9 +68,16 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/public.html">Public API</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../plugins/index.html">Core Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/cachedcopy.html">Cached Copy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/core.html">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/geo.html">Geo</a></li>
+</ul>
+</li>
 <li class="toctree-l1 current"><a class="reference internal" href="index.html">Internals</a><ul class="current">
 <li class="toctree-l2 current"><a class="current reference internal" href="">Dataset configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="plugins-interface.html">Plugins interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="utils/index.html">datacat.utils</a></li>
 </ul>
 </li>
 <li class="toctree-l1"><a class="reference internal" href="../development/index.html">Development</a><ul>
@@ -204,14 +211,11 @@ geographical dataset by the Geo plugin.</p>
 <h3>Key: <tt class="docutils literal"><span class="pre">geo.importer</span></tt><a class="headerlink" href="#key-geo-importer" title="Permalink to this headline">¶</a></h3>
 <p>The name of the geographical data importer to be used to extract data
 from the resources.</p>
-<p>Defaults to <tt class="docutils literal"><span class="pre">autodiscovery</span></tt>.</p>
 <p>Accepted values:</p>
-<ul>
-<li><p class="first"><tt class="docutils literal"><span class="pre">autodiscovery</span></tt>: automatically find data inside archives,
-determine the data type and import in a PostGIS table.</p>
-<p>Note that geometries in all the contained resources must be of the
-same type.</p>
-</li>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">find_shapefiles</span></tt>: finds shapefiles inside a (possibiy recursive)
+structure of archives. Extracts all the encountered shapefiles along
+the path.</li>
 </ul>
 </div>
 <div class="section" id="key-geo-default-projection">
@@ -230,6 +234,11 @@ the usual GDAL/OGR forms (complete WKT, PROJ.4, EPSG:n
 or a file containing the SRS)</div></blockquote>
 <p class="last">Of course we don&#8217;t want to allow the user to specify a path
 on the local filesystem!</p>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Right now, the only supported format is <tt class="docutils literal"><span class="pre">EPSG:&lt;number&gt;</span></tt>
+indicating the projection SRID directly.</p>
 </div>
 </div>
 </div>

@@ -1,0 +1,301 @@
+
+
+<!DOCTYPE html>
+<!--[if IE 8]><html class="no-js lt-ie9" lang="en" > <![endif]-->
+<!--[if gt IE 8]><!--> <html class="no-js" lang="en" > <!--<![endif]-->
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  
+  <title>datacat.utils.data_extraction &mdash; Datacat 0.1a documentation</title>
+  
+
+  
+  
+
+  
+  <link href='https://fonts.googleapis.com/css?family=Lato:400,700|Roboto+Slab:400,700|Inconsolata:400,700' rel='stylesheet' type='text/css'>
+
+  
+  
+    
+
+  
+
+  
+  
+    <link rel="stylesheet" href="../../_static/css/theme.css" type="text/css" />
+  
+
+  
+    <link rel="top" title="Datacat 0.1a documentation" href="../../index.html"/>
+        <link rel="up" title="datacat.utils" href="index.html"/>
+        <link rel="next" title="datacat.utils.tempfile" href="tempfile.html"/>
+        <link rel="prev" title="datacat.utils.archives" href="archives.html"/> 
+
+  
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
+
+</head>
+
+<body class="wy-body-for-nav" role="document">
+
+  <div class="wy-grid-for-nav">
+
+    
+    <nav data-toggle="wy-nav-shift" class="wy-nav-side">
+      <div class="wy-side-nav-search">
+        <a href="../../index.html" class="fa fa-home"> Datacat</a>
+        <div role="search">
+  <form id ="rtd-search-form" class="wy-form" action="../../search.html" method="get">
+    <input type="text" name="q" placeholder="Search docs" />
+    <input type="hidden" name="check_keywords" value="yes" />
+    <input type="hidden" name="area" value="default" />
+  </form>
+</div>
+      </div>
+
+      <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
+        
+        
+            <ul class="current">
+<li class="toctree-l1"><a class="reference internal" href="../../deploy/index.html">Deployment</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../deploy/settings.html">Settings</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../api/index.html">API</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../api/admin.html">Administrative API</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../api/public.html">Public API</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../plugins/index.html">Core Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../plugins/cachedcopy.html">Cached Copy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../plugins/core.html">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../../plugins/geo.html">Geo</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="../index.html">Internals</a><ul class="current">
+<li class="toctree-l2"><a class="reference internal" href="../dataset-configuration.html">Dataset configuration</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins-interface.html">Plugins interface</a></li>
+<li class="toctree-l2 current"><a class="reference internal" href="index.html">datacat.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="../../development/index.html">Development</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../../development/todolist.html">Todo-List</a></li>
+</ul>
+</li>
+</ul>
+
+        
+      </div>
+      &nbsp;
+    </nav>
+
+    <section data-toggle="wy-nav-shift" class="wy-nav-content-wrap">
+
+      
+      <nav class="wy-nav-top" role="navigation" aria-label="top navigation">
+        <i data-toggle="wy-nav-top" class="fa fa-bars"></i>
+        <a href="../../index.html">Datacat</a>
+      </nav>
+
+
+      
+      <div class="wy-nav-content">
+        <div class="rst-content">
+          <div role="navigation" aria-label="breadcrumbs navigation">
+  <ul class="wy-breadcrumbs">
+    <li><a href="../../index.html">Docs</a> &raquo;</li>
+      
+          <li><a href="../index.html">Internals</a> &raquo;</li>
+      
+          <li><a href="index.html">datacat.utils</a> &raquo;</li>
+      
+    <li>datacat.utils.data_extraction</li>
+      <li class="wy-breadcrumbs-aside">
+        
+          <a href="../../_sources/internals/utils/data_extraction.txt" rel="nofollow"> View page source</a>
+        
+      </li>
+  </ul>
+  <hr/>
+</div>
+          <div role="main">
+            
+  <div class="section" id="module-datacat.utils.data_extraction">
+<span id="datacat-utils-data-extraction"></span><h1>datacat.utils.data_extraction<a class="headerlink" href="#module-datacat.utils.data_extraction" title="Permalink to this headline">¶</a></h1>
+<p>Automagic stuff to extract data from archive files, ...</p>
+<p>Needs some work as we need to do some pretty guessing in order to
+correctly extract stuff; and it would be nice to somehow allow the user
+to define hints about the data to be imported..</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p>How to represent the type of files missing a mimetype?</p>
+<p class="last">Eg. ESRI Shapefiles are identified just as
+<tt class="docutils literal"><span class="pre">application/octet-stream</span></tt>, but they are indeed recognied also as
+<tt class="docutils literal"><span class="pre">&quot;ESRI</span> <span class="pre">Shapefile</span> <span class="pre">version</span> <span class="pre">X</span> <span class="pre">length</span> <span class="pre">Y</span> <span class="pre">type</span> <span class="pre">Z&quot;</span></tt> in the textual
+representation.. which of course cannot be fully trusted to
+be consistent in all versions of libmagic.</p>
+</div>
+<dl class="function">
+<dt id="datacat.utils.data_extraction.find_shapefiles">
+<tt class="descclassname">datacat.utils.data_extraction.</tt><tt class="descname">find_shapefiles</tt><big>(</big><em>archive_filename</em><big>)</big><a class="headerlink" href="#datacat.utils.data_extraction.find_shapefiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="datacat.utils.data_extraction.shp2pgsql">
+<tt class="descclassname">datacat.utils.data_extraction.</tt><tt class="descname">shp2pgsql</tt><big>(</big><em>shapefile</em>, <em>schema=None</em>, <em>table=None</em>, <em>drop=False</em>, <em>mode='create'</em>, <em>create_table_only=False</em>, <em>use_dump_format=False</em>, <em>use_wkt=False</em>, <em>no_transaction=False</em>, <em>from_srid=None</em>, <em>srid=None</em>, <em>use_geography=False</em>, <em>geometry_column=None</em>, <em>keep_case=False</em>, <em>force_32bit=False</em>, <em>simple_geometries=False</em>, <em>encoding=None</em>, <em>create_gist_index=False</em>, <em>null_policy='insert'</em>, <em>tablespace=None</em>, <em>index_tablespace=None</em><big>)</big><a class="headerlink" href="#datacat.utils.data_extraction.shp2pgsql" title="Permalink to this definition">¶</a></dt>
+<dd><p>Wrapper around shp2pgsql command.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>shapefile</strong> &#8211; Path to a shapefile to be converted</li>
+<li><strong>schema</strong> &#8211; (optional) schema in which table should be created</li>
+<li><strong>table</strong> &#8211; (optional, recommended) name of the table in which to import data</li>
+<li><strong>drop</strong> &#8211; Drops the database table before creating a new table with the
+data in the Shape file.</li>
+<li><strong>mode</strong> &#8211; <p>A string describing the desired operation mode</p>
+<dl class="docutils">
+<dt>&#8216;append&#8217;</dt>
+<dd>Appends data from the Shape file into the database table.
+Note that to use this option to load multiple
+files, the files must have the same attributes and same data types.</dd>
+<dt>&#8216;create&#8217;</dt>
+<dd>Creates a new table and populates it from the Shape file.
+This is the default mode.</dd>
+</dl>
+</li>
+<li><strong>create_table_only</strong> &#8211; Only  produces  the  table  creation SQL code, without adding
+any actual data.  This can be used if you need to completely
+separate the table creation and data loading steps.</li>
+<li><strong>use_dump_format</strong> &#8211; Use the PostgreSQL &#8220;dump&#8221; format for the output data. This can
+be combined with -a, -c and  -d.  It  is much faster to load
+than the default &#8220;insert&#8221; SQL format. Use this for very large
+data sets.</li>
+<li><strong>use_wkt</strong> &#8211; Output WKT format, instead of WKB.  Note that this can introduce
+coordinate drifts due to loss of precision.</li>
+<li><strong>no_transaction</strong> &#8211; Execute each statement on its own, without using a
+transaction.  This allows loading of the majority of good
+data when there are some bad geometries that generate errors.
+Note that this cannot be used with the -D flag as the &#8220;dump&#8221;
+format always uses a transaction.</li>
+<li><strong>from_srid</strong> &#8211; Specify the SRID of the original projection.</li>
+<li><strong>srid</strong> &#8211; Specify the SRID to which data should be converted</li>
+<li><strong>use_geography</strong> &#8211; Use  the  geography  type instead of geometry.  Geography is
+used to store lat/lon data.  At the moment the only spatial
+reference supported is 4326.</li>
+<li><strong>geometry_column</strong> &#8211; Specify the name of the geometry column (mostly useful in append mode).</li>
+<li><strong>keep_case</strong> &#8211; Keep idendifiers case (column, schema and attributes). Note
+that attributes in Shapefile are usually allUPPERCASE.</li>
+<li><strong>force_32bit</strong> &#8211; Coerce all integers to standard 32-bit integers, do not create
+64-bit bigints, even if the DBF header signature appears to
+warrant it.</li>
+<li><strong>simple_geometries</strong> &#8211; Generate simple Geometries instead of MULTIgeometries. Shape
+files don&#8217;t differ between LINESTRINGs and MULTILINESTRINGs,
+so  shp2pgsql  generates  MULTILINESTRINGs  by  default.  This
+switch  will produce LINESTRINGs instead, but shp2pgsql will
+fail when it hits a real MULTILINESTRING. The  same  works
+for POLYGONs vs. MULTIPOLYGONs.</li>
+<li><strong>encoding</strong> &#8211; Specify the character encoding of Shapefile&#8217;s attributes.  If
+this option is used the output will be encoded in UTF-8.</li>
+<li><strong>create_gist_index</strong> &#8211; Create a GiST index on the geometry column.</li>
+<li><strong>null_policy</strong> &#8211; Specify NULL geometries handling policy (insert,skip,abort).</li>
+<li><strong>tablespace</strong> &#8211; Specify the tablespace for the new table.  Indexes will still
+use the default tablespace unless the -X parameter is also
+used.  The PostgreSQL documentation has a good description on
+when to use custom tablespaces.</li>
+<li><strong>index_tablespace</strong> &#8211; Specify the tablespace for the new table&#8217;s indexes.  This
+applies to the primary key index, and the GIST spatial index
+if -I is also used.</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">We should find some smarter way to return &#8220;chunked&#8221; output
+as soon as it is available, instead of keeping all of it
+in memory. But then we need some way to pass it to
+PostgreSQL..</p>
+</div>
+<div class="admonition-todo admonition" id="index-2">
+<p class="first admonition-title">Todo</p>
+<p class="last">It would also be nice to be able to export the whole table
+as a CSV file, (Like using the dump format -D) and then passing
+it to postgres using <tt class="docutils literal"><span class="pre">cursor.copy_from()</span></tt> -&gt; if we use
+the dump format, we need to strip content up to the &#8220;COPY ...&#8221;
+line.</p>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+          <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+        <a href="tempfile.html" class="btn btn-neutral float-right" title="datacat.utils.tempfile"/>Next <span class="fa fa-arrow-circle-right"></span></a>
+      
+      
+        <a href="archives.html" class="btn btn-neutral" title="datacat.utils.archives"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
+  
+
+  <hr/>
+
+  <div role="contentinfo">
+    <p>
+        &copy; Copyright 2014, Samuele Santi.
+    </p>
+  </div>
+
+  <a href="https://github.com/snide/sphinx_rtd_theme">Sphinx theme</a> provided by <a href="https://readthedocs.org">Read the Docs</a>
+</footer>
+        </div>
+      </div>
+
+    </section>
+
+  </div>
+  
+
+
+  
+
+    <script type="text/javascript">
+        var DOCUMENTATION_OPTIONS = {
+            URL_ROOT:'../../',
+            VERSION:'0.1a',
+            COLLAPSE_INDEX:false,
+            FILE_SUFFIX:'.html',
+            HAS_SOURCE:  true
+        };
+    </script>
+      <script type="text/javascript" src="../../_static/jquery.js"></script>
+      <script type="text/javascript" src="../../_static/underscore.js"></script>
+      <script type="text/javascript" src="../../_static/doctools.js"></script>
+
+  
+
+  
+  
+    <script type="text/javascript" src="../../_static/js/theme.js"></script>
+  
+
+  
+  
+  <script type="text/javascript">
+      jQuery(function () {
+          SphinxRtdTheme.StickyNav.enable();
+      });
+  </script>
+   
+
+</body>
+</html>

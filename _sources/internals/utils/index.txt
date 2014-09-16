@@ -1,5 +1,5 @@
-Internals
-#########
+datacat.utils
+#############
 
 
 Contents:
@@ -9,4 +9,3 @@ Contents:
     :glob:
 
     *
-    utils/index

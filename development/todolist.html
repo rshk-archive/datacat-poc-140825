@@ -28,7 +28,9 @@
   
 
   
-    <link rel="top" title="Datacat 0.1a documentation" href="../index.html"/> 
+    <link rel="top" title="Datacat 0.1a documentation" href="../index.html"/>
+        <link rel="up" title="Development" href="index.html"/>
+        <link rel="prev" title="Development" href="index.html"/> 
 
   
   <script src="https://cdnjs.cloudflare.com/ajax/libs/modernizr/2.6.2/modernizr.min.js"></script>
@@ -55,7 +57,7 @@
       <div class="wy-menu wy-menu-vertical" data-spy="affix" role="navigation" aria-label="main navigation">
         
         
-            <ul>
+            <ul class="current">
 <li class="toctree-l1"><a class="reference internal" href="../deploy/index.html">Deployment</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../deploy/settings.html">Settings</a></li>
 </ul>
@@ -65,9 +67,20 @@
 <li class="toctree-l2"><a class="reference internal" href="../api/public.html">Public API</a></li>
 </ul>
 </li>
+<li class="toctree-l1"><a class="reference internal" href="../plugins/index.html">Core Plugins</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/cachedcopy.html">Cached Copy</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/core.html">Core</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../plugins/geo.html">Geo</a></li>
+</ul>
+</li>
 <li class="toctree-l1"><a class="reference internal" href="../internals/index.html">Internals</a><ul>
 <li class="toctree-l2"><a class="reference internal" href="../internals/dataset-configuration.html">Dataset configuration</a></li>
 <li class="toctree-l2"><a class="reference internal" href="../internals/plugins-interface.html">Plugins interface</a></li>
+<li class="toctree-l2"><a class="reference internal" href="../internals/utils/index.html">datacat.utils</a></li>
+</ul>
+</li>
+<li class="toctree-l1 current"><a class="reference internal" href="index.html">Development</a><ul class="current">
+<li class="toctree-l2 current"><a class="current reference internal" href="">Todo-List</a></li>
 </ul>
 </li>
 </ul>
@@ -93,6 +106,8 @@
   <ul class="wy-breadcrumbs">
     <li><a href="../index.html">Docs</a> &raquo;</li>
       
+          <li><a href="index.html">Development</a> &raquo;</li>
+      
     <li>Todo-List</li>
       <li class="wy-breadcrumbs-aside">
         
@@ -111,11 +126,58 @@
 <p class="last">implement the <tt class="docutils literal"><span class="pre">resources.exposed</span></tt> dataset configuration functionality</p>
 </div>
 <p class="todo-source">(The <a class="reference internal" href="../internals/dataset-configuration.html#index-0"><em>original entry</em></a> is located in  /home/samu/Projects/datacat-poc-140825/docs/source/internals/dataset-configuration.rst, line 73.)</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p>Support reading projection information in a safe way using
+gdalsrsinfo; from the docs:</p>
+<blockquote>
+<div>srs_def may be the filename of a dataset supported by
+GDAL/OGR from which to extract SRS information OR any of
+the usual GDAL/OGR forms (complete WKT, PROJ.4, EPSG:n
+or a file containing the SRS)</div></blockquote>
+<p class="last">Of course we don&#8217;t want to allow the user to specify a path
+on the local filesystem!</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="../internals/dataset-configuration.html#index-1"><em>original entry</em></a> is located in  /home/samu/Projects/datacat-poc-140825/docs/source/internals/dataset-configuration.rst, line 117.)</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p>How to represent the type of files missing a mimetype?</p>
+<p class="last">Eg. ESRI Shapefiles are identified just as
+<tt class="docutils literal"><span class="pre">application/octet-stream</span></tt>, but they are indeed recognied also as
+<tt class="docutils literal"><span class="pre">&quot;ESRI</span> <span class="pre">Shapefile</span> <span class="pre">version</span> <span class="pre">X</span> <span class="pre">length</span> <span class="pre">Y</span> <span class="pre">type</span> <span class="pre">Z&quot;</span></tt> in the textual
+representation.. which of course cannot be fully trusted to
+be consistent in all versions of libmagic.</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="../internals/utils/data_extraction.html#index-0"><em>original entry</em></a> is located in  /home/samu/Projects/datacat-poc-140825/datacat/utils/data_extraction.py:docstring of datacat.utils.data_extraction, line 7.)</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p class="last">We should find some smarter way to return &#8220;chunked&#8221; output
+as soon as it is available, instead of keeping all of it
+in memory. But then we need some way to pass it to
+PostgreSQL..</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="../internals/utils/data_extraction.html#index-1"><em>original entry</em></a> is located in  /home/samu/Projects/datacat-poc-140825/datacat/utils/data_extraction.py:docstring of datacat.utils.data_extraction.shp2pgsql, line 103.)</p>
+<div class="admonition-todo admonition">
+<p class="first admonition-title">Todo</p>
+<p class="last">It would also be nice to be able to export the whole table
+as a CSV file, (Like using the dump format -D) and then passing
+it to postgres using <tt class="docutils literal"><span class="pre">cursor.copy_from()</span></tt> -&gt; if we use
+the dump format, we need to strip content up to the &#8220;COPY ...&#8221;
+line.</p>
+</div>
+<p class="todo-source">(The <a class="reference internal" href="../internals/utils/data_extraction.html#index-2"><em>original entry</em></a> is located in  /home/samu/Projects/datacat-poc-140825/datacat/utils/data_extraction.py:docstring of datacat.utils.data_extraction.shp2pgsql, line 108.)</p>
 </div>
 
 
           </div>
           <footer>
+  
+    <div class="rst-footer-buttons" role="navigation" aria-label="footer navigation">
+      
+      
+        <a href="index.html" class="btn btn-neutral" title="Development"><span class="fa fa-arrow-circle-left"></span> Previous</a>
+      
+    </div>
   
 
   <hr/>
