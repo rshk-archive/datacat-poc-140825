@@ -23,6 +23,7 @@ DATABASE = {
 
 PLUGINS = [
     'datacat.ext.core:core_plugin',
+    'datacat.ext.geo:geo_plugin',
 ]
 
 

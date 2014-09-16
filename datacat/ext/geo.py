@@ -5,17 +5,24 @@ Datacat Geographical Plugin
 - Exports geographical data into various formats
 """
 
+import os
+import re
+
 from flask import url_for
 from werkzeug.exceptions import NotFound
 
-from datacat.db import get_db
+from datacat.db import get_db, db, admin_db
 from datacat.ext.base import Plugin
 from datacat.web.utils import json_view
+from datacat.utils.data_extraction import find_shapefiles, shp2pgsql
+from datacat.utils.tempfile import TemporaryDir
 
 
 class GeoPlugin(Plugin):
     def install(self):
         # Create database schema
+        # with admin_db, admin_db.cursor() as cur:
+        #     cur.execute("create extension postgis")
         pass
 
     def uninstall(self):
@@ -31,23 +38,9 @@ def make_dataset_metadata(dataset_id, config, metadata):
         # Not a geographical dataset
         return
 
-    # For each resource, if it is a geographical resource, add URLs to
-    # other formats, etc.
+    # todo: Add URLs to resources for the converted formats
 
     pass
-
-#     if 'metadata' in config:
-#         metadata.update(config['metadata'])
-
-#     if 'resources' in config:
-#         metadata['resources'] = []
-#         for resource_id, resource in enumerate(config['resources']):
-#             metadata['resources'].append({
-#                 'url': url_for(__name__ + '.get_dataset_resource',
-#                                dataset_id=dataset_id,
-#                                resource_id=resource_id,
-#                                _external=True)
-#             })
 
 
 @geo_plugin.hook(['dataset_create', 'dataset_update'])
@@ -88,7 +81,6 @@ def import_geo_dataset(dataset_id):
     into a PostGIS table.
     """
 
-    from datacat.db import db
     with db.cursor() as cur:
         cur.execute("SELECT id, configuration FROM dataset"
                     " WHERE id=%s;", (dataset_id,))
@@ -98,11 +90,18 @@ def import_geo_dataset(dataset_id):
         # Should be logged as an error
         raise NotFound("Dataset not found: {0}".format(dataset_id))
 
-    # - Download data for all the resources
-    # - Discover information inside the resource archive
-    # - Import in a (new) PostgreSQL table
-    #   - use shp2pgsql for the moment..
-    pass
+    conf = result['configuration']
+
+    if not conf.get('geo', {}).get('enabled', False):
+        # Task was called from hook.. by error?
+        raise ValueError("Requested import for non-geo-enabled dataset")
+
+    if conf['geo']['importer'] == 'find_shapefiles':
+        return import_dataset_find_shapefiles(dataset_id, conf)
+
+    else:
+        raise ValueError("Unsupported importer: {0}"
+                         .format(conf['geo']['importer']))
 
 
 @geo_plugin.route('/data/<int:dataset_id>/export/shp')
@@ -119,5 +118,124 @@ def export_geo_dataset_geojson(dataset_id):
 # Utility functions
 # ----------------------------------------------------------------------
 
-def find_shapefiles():
-    pass
+def _random_file_name(ext=None):
+    name = os.urandom(20).encode('hex')
+    if ext is not None:
+        name += '.' + ext
+    return name
+
+
+def _copy_resource_to_file(resource, filename):
+    if resource['type'] == 'internal':
+        # Get the resource contents by id
+        # todo: copy files in a chunked mode
+        data = _get_internal_resource_data(resource['id'])
+        with open(filename, 'wb') as fp:
+            fp.write(data)
+        return
+
+    if resource['type'] == 'url':
+        raise NotImplementedError('')
+
+    raise ValueError("Unsupported resource type: {0!r}"
+                     .format(resource['type']))
+
+
+def _get_internal_resource_data(resource_id):
+    """Get all data form an internally-stored resource"""
+
+    # todo: improve this function to avoid keeping the whole thing in memory
+    # todo: also, make this more generic (and move from here)
+
+    with db, db.cursor() as cur:
+        cur.execute("""
+        SELECT id, mimetype, data_oid FROM "resource" WHERE id = %(id)s;
+        """, dict(id=resource_id))
+        resource = cur.fetchone()
+
+    if resource is None:
+        raise NotFound()
+
+    with db:
+        lobject = db.lobject(oid=resource['data_oid'], mode='rb')
+        data = lobject.read()
+        lobject.close()
+
+    return data
+
+
+def import_dataset_find_shapefiles_DUMMY(dataset_id, dataset_conf):
+    with admin_db, admin_db.cursor() as cur:
+        cur.execute("""
+        CREATE TABLE geodata_{0} (
+            key CHARACTER VARYING (256) PRIMARY KEY,
+            value TEXT);
+        """.format(dataset_id))
+
+
+def import_dataset_find_shapefiles(dataset_id, dataset_conf):
+    # ------------------------------------------------------------
+    # - Find all the shapefiles inside the zip and extract them
+    #   to a temporary path
+    # ------------------------------------------------------------
+
+    destination_table = 'geodata_{0}'.format(dataset_id)
+
+    create_table_sqls = []
+    import_data_sqls = []
+
+    with TemporaryDir() as tempdir:
+        # First, copy zip files to temporary directory
+
+        for resource in dataset_conf['resources']:
+            # We assume the file is a zip, but we should double-check that!
+            dest_file = os.path.join(tempdir, _random_file_name('zip'))
+
+            # Copy the resource to disk
+            _copy_resource_to_file(resource, dest_file)
+
+            # Let's look for shapefiles inside that thing..
+            found = find_shapefiles(dest_file)
+            for basename, files in found.iteritems():
+                if 'shp' not in files:
+                    continue  # Bad match..
+
+                # Export shapefiles to temporary files
+                base_name = _random_file_name()
+                for ext, item in files.iteritems():
+                    dest = os.path.join(tempdir, base_name + '.' + ext)
+
+                    with open(dest, 'wb') as fp:
+                        # todo: copy file in chunks, not as a whole
+                        fp.write(item.open().read())
+
+                shp_full_path = os.path.join(tempdir, base_name + '.shp')
+
+                create_table_sql = shp2pgsql(
+                    shp_full_path,
+                    table=destination_table,
+                    create_table_only=True, mode='create',
+                    geometry_column='geom', create_gist_index=True)
+
+                # Use TEXT fields instead of varchar(XX)
+                # todo: use a less-hackish way!!
+                create_table_sql = re.sub(
+                    r'varchar\([0-9]+\)', 'text', create_table_sql,
+                    flags=re.IGNORECASE)
+
+                import_data_sql = shp2pgsql(
+                    shp_full_path,
+                    table=destination_table,
+                    mode='append',
+                    geometry_column='geom',
+                    create_gist_index=False)
+
+                create_table_sqls.append(create_table_sql)
+                import_data_sqls.append(import_data_sql)
+
+    with admin_db, admin_db.cursor() as cur:
+        cur.execute(create_table_sqls[0])
+
+    with db, db.cursor() as cur:
+        for sql in import_data_sqls:
+            cur.execute(sql)
