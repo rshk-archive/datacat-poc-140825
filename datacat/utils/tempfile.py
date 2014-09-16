@@ -6,6 +6,21 @@ import tempfile
 
 
 class TemporaryDir(object):
+    """
+    Example usage:
+
+    .. code-block:: python
+
+        from datacat.utils.tempfile import TemporaryDir
+
+        with TemporaryDir() as tempdir:
+            with open(os.path.join(tempdir, 'foo.txt'), 'w') as fp:
+                fp.write('Foobar')
+
+    Once the ``with:`` block is exited, the temporary directory
+    will be deleted automatically.
+    """
+
     def __init__(self, suffix='', prefix='tmp', dir=None):
         self._tempdir = tempfile.mkdtemp(suffix, prefix, dir)
 
