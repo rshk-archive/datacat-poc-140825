@@ -31,6 +31,8 @@ pypi_upload:
 install:
 	python setup.py install
 
+develop: install_dev setup_tests setup_docs
+
 install_dev:
 	python setup.py develop
 
@@ -55,6 +57,9 @@ update_test_data: tests/data
 
 docs:
 	$(MAKE) -C docs html
+
+setup_docs:
+	pip install sphinx sphinx-rtd-theme
 
 publish_docs: docs
 	ghp-import -n -p ./docs/build/html
