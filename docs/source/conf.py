@@ -103,17 +103,49 @@ pygments_style = 'sphinx'
 # a list of builtin themes.
 html_theme = 'default'
 
-on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
+# on_rtd = os.environ.get('READTHEDOCS', None) == 'True'
 
-if not on_rtd:
-    import sphinx_rtd_theme
-    html_theme = 'sphinx_rtd_theme'
-    html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
+# if not on_rtd:
+#     import sphinx_rtd_theme
+#     html_theme = 'sphinx_rtd_theme'
+#     html_theme_path = [sphinx_rtd_theme.get_html_theme_path()]
 
 # Theme options are theme-specific and customize the look and feel of a theme
 # further.  For a list of options available for each theme, see the
 # documentation.
-# html_theme_options = {}
+html_theme_options = {
+    'rightsidebar': False,
+    'stickysidebar': False,
+    'collapsiblesidebar': False,
+    'externalrefs': False,
+
+    'footerbgcolor': '#11303d',  # #11303d
+    'footertextcolor': '#ffffff',  # #ffffff
+
+    'sidebarbgcolor': '#1c4e63',  # #1c4e63
+    'sidebarbtncolor': '#3c6e83',  # #3c6e83
+    'sidebartextcolor': '#ffffff',  # #ffffff
+    'sidebarlinkcolor': '#98dbcc',  # #98dbcc
+
+    'relbarbgcolor': '#133f52',  # #133f52
+    'relbartextcolor': '#ffffff',  # #ffffff
+    'relbarlinkcolor': '#ffffff',  # #ffffff
+
+    'bgcolor': '#ffffff',  # #ffffff
+    'textcolor': '#000000',  # #000000
+
+    'headbgcolor': '#f2f2f2',  # #f2f2f2
+    'headtextcolor': '#20435c',  # #20435c
+    'headlinkcolor': '#c60f0f',  # #c60f0f
+
+    'linkcolor': '#355f7c',  # #355f7c
+    'visitedlinkcolor': '#355f7c',  # #355f7c
+    'codebgcolor': '#eeffcc',  # #eeffcc
+    'codetextcolor': '#333333',  # #333333
+
+    'bodyfont': 'sans-serif',
+    'headfont': "'Trebuchet MS', sans-serif",
+}
 
 # Add any paths that contain custom themes here, relative to this directory.
 # html_theme_path = []
