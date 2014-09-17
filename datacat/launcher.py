@@ -21,7 +21,10 @@ import tempfile
 import time
 import subprocess
 
-from datacat.core import app, celery_app
+from datacat.core import make_app, celery_app
+
+
+app = make_app()
 
 
 def run_webapp():
