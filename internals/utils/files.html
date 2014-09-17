@@ -6,7 +6,7 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>datacat.utils &mdash; Datacat 0.1a documentation</title>
+    <title>datacat.utils.files &mdash; Datacat 0.1a documentation</title>
     
     <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
     <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
@@ -24,9 +24,9 @@
     <script type="text/javascript" src="../../_static/underscore.js"></script>
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="Datacat 0.1a documentation" href="../../index.html" />
-    <link rel="up" title="Internals" href="../index.html" />
-    <link rel="next" title="datacat.utils.archives" href="archives.html" />
-    <link rel="prev" title="Plugins interface" href="../plugins-interface.html" /> 
+    <link rel="up" title="datacat.utils" href="index.html" />
+    <link rel="next" title="datacat.utils.resource_access" href="resource_access.html" />
+    <link rel="prev" title="datacat.utils.data_extraction" href="data_extraction.html" /> 
   </head>
   <body>
     <div class="related">
@@ -39,13 +39,14 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="archives.html" title="datacat.utils.archives"
+          <a href="resource_access.html" title="datacat.utils.resource_access"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="../plugins-interface.html" title="Plugins interface"
+          <a href="data_extraction.html" title="datacat.utils.data_extraction"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
-          <li><a href="../index.html" accesskey="U">Internals</a> &raquo;</li> 
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">datacat.utils</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,24 +55,27 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="datacat-utils">
-<h1>datacat.utils<a class="headerlink" href="#datacat-utils" title="Permalink to this headline">¶</a></h1>
-<p>Contents:</p>
-<div class="toctree-wrapper compound">
-<ul>
-<li class="toctree-l1"><a class="reference internal" href="archives.html">datacat.utils.archives</a></li>
-<li class="toctree-l1"><a class="reference internal" href="data_extraction.html">datacat.utils.data_extraction</a></li>
-<li class="toctree-l1"><a class="reference internal" href="files.html">datacat.utils.files</a></li>
-<li class="toctree-l1"><a class="reference internal" href="resource_access.html">datacat.utils.resource_access</a><ul>
-<li class="toctree-l2"><a class="reference internal" href="resource_access.html#resource-opener-function">Resource opener function</a></li>
-<li class="toctree-l2"><a class="reference internal" href="resource_access.html#base-interface">Base interface</a></li>
-<li class="toctree-l2"><a class="reference internal" href="resource_access.html#core-resource-accessors">Core resource accessors</a></li>
-<li class="toctree-l2"><a class="reference internal" href="resource_access.html#exceptions">Exceptions</a></li>
+  <div class="section" id="module-datacat.utils.files">
+<span id="datacat-utils-files"></span><h1>datacat.utils.files<a class="headerlink" href="#module-datacat.utils.files" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="datacat.utils.files.file_copy">
+<tt class="descclassname">datacat.utils.files.</tt><tt class="descname">file_copy</tt><big>(</big><em>src</em>, <em>dest</em>, <em>blocksize=4096</em><big>)</big><a class="headerlink" href="#datacat.utils.files.file_copy" title="Permalink to this definition">¶</a></dt>
+<dd><p>Copy data between two file descriptors or file-like objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>src</strong> &#8211; An object with a <tt class="docutils literal"><span class="pre">.read(size)</span></tt> method</li>
+<li><strong>dest</strong> &#8211; An object with a <tt class="docutils literal"><span class="pre">.write(data)</span></tt> method</li>
+<li><strong>blocksize</strong> &#8211; The size of blocks read from src and written to dest.</li>
 </ul>
-</li>
-<li class="toctree-l1"><a class="reference internal" href="tempfile.html">datacat.utils.tempfile</a></li>
-</ul>
-</div>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
 </div>
 
 
@@ -81,14 +85,14 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../plugins-interface.html"
-                        title="previous chapter">Plugins interface</a></p>
+  <p class="topless"><a href="data_extraction.html"
+                        title="previous chapter">datacat.utils.data_extraction</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="archives.html"
-                        title="next chapter">datacat.utils.archives</a></p>
+  <p class="topless"><a href="resource_access.html"
+                        title="next chapter">datacat.utils.resource_access</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../../_sources/internals/utils/index.txt"
+    <li><a href="../../_sources/internals/utils/files.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
@@ -118,13 +122,14 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="archives.html" title="datacat.utils.archives"
+          <a href="resource_access.html" title="datacat.utils.resource_access"
              >next</a> |</li>
         <li class="right" >
-          <a href="../plugins-interface.html" title="Plugins interface"
+          <a href="data_extraction.html" title="datacat.utils.data_extraction"
              >previous</a> |</li>
         <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
-          <li><a href="../index.html" >Internals</a> &raquo;</li> 
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" >datacat.utils</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

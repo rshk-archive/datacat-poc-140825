@@ -1,0 +1,300 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>datacat.utils.resource_access &mdash; Datacat 0.1a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Datacat 0.1a documentation" href="../../index.html" />
+    <link rel="up" title="datacat.utils" href="index.html" />
+    <link rel="next" title="datacat.utils.tempfile" href="tempfile.html" />
+    <link rel="prev" title="datacat.utils.files" href="files.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tempfile.html" title="datacat.utils.tempfile"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="files.html" title="datacat.utils.files"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">datacat.utils</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-datacat.utils.resource_access">
+<span id="datacat-utils-resource-access"></span><h1>datacat.utils.resource_access<a class="headerlink" href="#module-datacat.utils.resource_access" title="Permalink to this headline">¶</a></h1>
+<span class="target" id="module-datacat.utils.resource_access"></span><p>Resource access abstraction.</p>
+<p>Allows retrieving a resource in a flexible and extendable way.</p>
+<p>The accessors distributed with the core provide support for the following urls:</p>
+<table border="1" class="docutils">
+<colgroup>
+<col width="36%" />
+<col width="64%" />
+</colgroup>
+<thead valign="bottom">
+<tr class="row-odd"><th class="head">Scheme</th>
+<th class="head">Accessor class</th>
+</tr>
+</thead>
+<tbody valign="top">
+<tr class="row-even"><td><tt class="docutils literal"><span class="pre">internal</span></tt> <a class="footnote-reference" href="#id2" id="id1">[0]</a></td>
+<td><a class="reference internal" href="#datacat.utils.resource_access.InternalResourceAccessor" title="datacat.utils.resource_access.InternalResourceAccessor"><tt class="xref py py-class docutils literal"><span class="pre">InternalResourceAccessor</span></tt></a></td>
+</tr>
+<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">http</span></tt>, <tt class="docutils literal"><span class="pre">https</span></tt></td>
+<td><a class="reference internal" href="#datacat.utils.resource_access.HttpResourceAccessor" title="datacat.utils.resource_access.HttpResourceAccessor"><tt class="xref py py-class docutils literal"><span class="pre">HttpResourceAccessor</span></tt></a></td>
+</tr>
+</tbody>
+</table>
+<table class="docutils footnote" frame="void" id="id2" rules="none">
+<colgroup><col class="label" /><col /></colgroup>
+<tbody valign="top">
+<tr><td class="label"><a class="fn-backref" href="#id1">[0]</a></td><td>Resources from the internal storage are linked using URLs like:
+<tt class="docutils literal"><span class="pre">internal:///123</span></tt> (where <tt class="docutils literal"><span class="pre">123</span></tt> is the resource id).</td></tr>
+</tbody>
+</table>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Use some configuration option to allow changing the
+resource accessors.</p>
+</div>
+<div class="section" id="resource-opener-function">
+<h2>Resource opener function<a class="headerlink" href="#resource-opener-function" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="datacat.utils.resource_access.open_resource">
+<tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">open_resource</tt><big>(</big><em>url</em><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.open_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Open a resource from a URL, returning the appropriate accessor
+class instance.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="base-interface">
+<h2>Base interface<a class="headerlink" href="#base-interface" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="datacat.utils.resource_access.BaseResourceAccessor">
+<em class="property">class </em><tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">BaseResourceAccessor</tt><big>(</big><em>url</em><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.BaseResourceAccessor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="datacat.utils.resource_access.BaseResourceAccessor.__init__">
+<tt class="descname">__init__</tt><big>(</big><em>url</em><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.BaseResourceAccessor.__init__" title="Permalink to this definition">¶</a></dt>
+<dd><p>(Lazily) open the resource. This could merely mean storing
+the url somewhere for later, as in default implementation.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="datacat.utils.resource_access.BaseResourceAccessor.open_resource">
+<tt class="descname">open_resource</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.BaseResourceAccessor.open_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a file descriptor associated with the selected resource.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="datacat.utils.resource_access.BaseResourceAccessor.save_to_file">
+<tt class="descname">save_to_file</tt><big>(</big><em>dest</em>, <em>blocksize=4096</em><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.BaseResourceAccessor.save_to_file" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save the resource to file</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.BaseResourceAccessor.last_modified">
+<tt class="descname">last_modified</tt><a class="headerlink" href="#datacat.utils.resource_access.BaseResourceAccessor.last_modified" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get the last modified date for this object</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.BaseResourceAccessor.etag">
+<tt class="descname">etag</tt><a class="headerlink" href="#datacat.utils.resource_access.BaseResourceAccessor.etag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a value that can be used as etag for this resource</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.BaseResourceAccessor.content_type">
+<tt class="descname">content_type</tt><a class="headerlink" href="#datacat.utils.resource_access.BaseResourceAccessor.content_type" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return the resource mimetype</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="core-resource-accessors">
+<h2>Core resource accessors<a class="headerlink" href="#core-resource-accessors" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="datacat.utils.resource_access.InternalResourceAccessor">
+<em class="property">class </em><tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">InternalResourceAccessor</tt><big>(</big><em>url</em><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.InternalResourceAccessor" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="datacat.utils.resource_access.InternalResourceAccessor.open_resource">
+<tt class="descname">open_resource</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.InternalResourceAccessor.open_resource" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.InternalResourceAccessor.last_modified">
+<tt class="descname">last_modified</tt><a class="headerlink" href="#datacat.utils.resource_access.InternalResourceAccessor.last_modified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.InternalResourceAccessor.etag">
+<tt class="descname">etag</tt><a class="headerlink" href="#datacat.utils.resource_access.InternalResourceAccessor.etag" title="Permalink to this definition">¶</a></dt>
+<dd><p>Not implemented yet: might return a hash of the resource data?</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="datacat.utils.resource_access.HttpResourceAccessor">
+<em class="property">class </em><tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">HttpResourceAccessor</tt><big>(</big><em>url</em><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.HttpResourceAccessor" title="Permalink to this definition">¶</a></dt>
+<dd><p>Allow accessing an HTTP resource</p>
+<dl class="method">
+<dt id="datacat.utils.resource_access.HttpResourceAccessor.open_resource">
+<tt class="descname">open_resource</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.HttpResourceAccessor.open_resource" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.HttpResourceAccessor.last_modified">
+<tt class="descname">last_modified</tt><a class="headerlink" href="#datacat.utils.resource_access.HttpResourceAccessor.last_modified" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.HttpResourceAccessor.etag">
+<tt class="descname">etag</tt><a class="headerlink" href="#datacat.utils.resource_access.HttpResourceAccessor.etag" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.HttpResourceAccessor.content_type">
+<tt class="descname">content_type</tt><a class="headerlink" href="#datacat.utils.resource_access.HttpResourceAccessor.content_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+</div>
+<div class="section" id="exceptions">
+<h2>Exceptions<a class="headerlink" href="#exceptions" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="datacat.utils.resource_access.ResourceAccessError">
+<em class="property">class </em><tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">ResourceAccessError</tt><a class="headerlink" href="#datacat.utils.resource_access.ResourceAccessError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="datacat.utils.resource_access.ResourceNotFound">
+<em class="property">class </em><tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">ResourceNotFound</tt><a class="headerlink" href="#datacat.utils.resource_access.ResourceNotFound" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception to indicate the resource was not found.</p>
+<p>Used eg. for HTTP error 404 or internal resource not found.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="datacat.utils.resource_access.ResourceAccessDenied">
+<em class="property">class </em><tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">ResourceAccessDenied</tt><a class="headerlink" href="#datacat.utils.resource_access.ResourceAccessDenied" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception to indicate access to the resource was denied.</p>
+<p>Used eg. for HTTP errors 401 and 403</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="datacat.utils.resource_access.ResourceAccessFailure">
+<em class="property">class </em><tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">ResourceAccessFailure</tt><a class="headerlink" href="#datacat.utils.resource_access.ResourceAccessFailure" title="Permalink to this definition">¶</a></dt>
+<dd><p>Exception to indicate a generif failure to access the resource.</p>
+<p>To be used, eg. for connection errors or http error 500.</p>
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">datacat.utils.resource_access</a><ul>
+<li><a class="reference internal" href="#resource-opener-function">Resource opener function</a></li>
+<li><a class="reference internal" href="#base-interface">Base interface</a></li>
+<li><a class="reference internal" href="#core-resource-accessors">Core resource accessors</a></li>
+<li><a class="reference internal" href="#exceptions">Exceptions</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="files.html"
+                        title="previous chapter">datacat.utils.files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="tempfile.html"
+                        title="next chapter">datacat.utils.tempfile</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/internals/utils/resource_access.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="tempfile.html" title="datacat.utils.tempfile"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="files.html" title="datacat.utils.files"
+             >previous</a> |</li>
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" >datacat.utils</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Samuele Santi.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
