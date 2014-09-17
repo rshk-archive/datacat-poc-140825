@@ -135,4 +135,4 @@ def make_app(config=None):
     return app
 
 
-celery_placeholder_app = Celery('datacat', set_as_current=False)
+celery_app = celery_placeholder_app = Celery('datacat', set_as_current=False)
