@@ -1,8 +1,11 @@
 import datetime
-import urlparse
+import os
 import re
+import urlparse
 
-from datacat.utils.resource_access import open_resource
+import pytest
+
+from datacat.utils.resource_access import open_resource, ResourceAccessFailure
 
 
 def test_open_internal_resource(configured_app):
@@ -26,7 +29,7 @@ def test_open_internal_resource(configured_app):
         resource = open_resource('internal:///{0}'.format(resource_id))
         assert resource.open_resource().read() == DATA_PAYLOAD
         assert isinstance(resource.last_modified, datetime.datetime)
-        assert resource.etag is not None
+        assert resource.etag is None  # Not implemented yet..
         assert resource.content_type == 'application/json'
 
 
@@ -40,6 +43,22 @@ def test_open_http_resource():
     resource = open_resource(
         'https://github.com/rshk/datacat-poc-140825-testdata/'
         'raw/master/geodata/roads-folders.zip')
-    assert isinstance(resource.last_modified, datetime.datetime)
-    assert resource.etag is not None
+    assert isinstance(resource.last_modified, datetime.datetime) \
+        or resource.last_modified is None
+    assert resource.etag is not None  # GitHub returns a Etag: header
     assert resource.content_type == 'application/zip'
+
+
+def test_save_resource_to_file(tmpdir):
+    filename = str(tmpdir.join('foobar.json'))
+
+    resource = open_resource('http://httpbin.org/cache')
+    with open(filename, 'wb') as fp:
+        resource.save_to_file(fp)
+
+    assert os.lstat(filename).st_size > 100
+
+
+def test_open_unsupported_url():
+    with pytest.raises(ResourceAccessFailure):
+        open_resource('invalid://foobar')

@@ -26,6 +26,7 @@ import abc
 import cgi
 import datetime
 
+from werkzeug.utils import cached_property
 import requests
 
 from datacat.db import db
@@ -141,34 +142,24 @@ class BaseResourceAccessor(object):
 
 class InternalResourceAccessor(BaseResourceAccessor):
     def open_resource(self):
-        resource_id = self._get_resource_id()
-
-        with db, db.cursor() as cur:
-            cur.execute("""
-            SELECT id, mimetype, data_oid FROM "resource" WHERE id = %(id)s;
-            """, dict(id=resource_id))
-            resource = cur.fetchone()
-
-        if resource is None:
-            raise ResourceNotFound(
-                "The resource was not found in the database")
-
-        return db.lobject(oid=resource['data_oid'], mode='rb')
+        oid = self._resource_record['data_oid']
+        return db.lobject(oid=oid, mode='rb')
 
     @property
     def last_modified(self):
         # todo: return resource "mdate" field value
-        pass
+        return self._resource_record['mtime']
 
     @property
     def etag(self):
-        """
-        Not implemented yet: might return a hash of the resource data?
-        """
-        raise NotImplementedError(
-            "Getting etag for internal resource is not suppored yet")
+        return None
 
-    def _get_resource_id(self):
+    @property
+    def content_type(self):
+        return self._resource_record['mimetype']
+
+    @cached_property
+    def _resource_id(self):
         parsed_url = urlparse(self.url)
         if parsed_url.scheme != 'internal':
             raise ValueError("Unsupported URL scheme: {0}"
@@ -183,6 +174,21 @@ class InternalResourceAccessor(BaseResourceAccessor):
         except:
             raise ValueError("Invalid resource id: {0}"
                              .format(parsed_url.path.strip('/')))
+
+    @property
+    def _resource_record(self):
+        with db, db.cursor() as cur:
+            cur.execute("""
+            SELECT id, mimetype, mtime, data_oid
+            FROM "resource" WHERE id = %(id)s;
+            """, dict(id=self._resource_id))
+            resource = cur.fetchone()
+
+        if resource is None:
+            raise ResourceNotFound(
+                "The resource was not found in the database")
+
+        return resource
 
 
 class HttpResourceAccessor(BaseResourceAccessor):
@@ -207,7 +213,7 @@ class HttpResourceAccessor(BaseResourceAccessor):
 
     @property
     def last_modified(self):
-        val = self._headers['last-modified']
+        val = self._headers.get('last-modified')
         if val is None:
             return None
         return datetime.datetime.strptime(val, HTTP_DATE_FORMAT)
