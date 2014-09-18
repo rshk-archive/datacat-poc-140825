@@ -53,7 +53,8 @@ def create_tables(conn):
             mimetype CHARACTER VARYING (128),
             data_oid INTEGER,
             ctime TIMESTAMP WITHOUT TIME ZONE,
-            mtime TIMESTAMP WITHOUT TIME ZONE);
+            mtime TIMESTAMP WITHOUT TIME ZONE,
+            hash VARCHAR(128));
         """)
 
 
