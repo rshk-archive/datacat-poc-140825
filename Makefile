@@ -70,3 +70,4 @@ cleanup:
 	find -name '*~' -print0 | xargs -0 rm -rfv
 	find -name '*.pyc' -print0 | xargs -0 rm -rfv
 	find -name __pycache__ -print0 | xargs -0 rm -rfv
+	rm -f .coverage .coverage.*
