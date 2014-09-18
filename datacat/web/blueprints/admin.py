@@ -5,13 +5,15 @@ Administrative API for Datacat
 from cgi import parse_header
 import datetime
 import json
+import hashlib
 
 from flask import Blueprint, request, url_for, current_app
 from werkzeug.exceptions import NotFound
 
-from datacat.db import get_db
-from datacat.web.utils import json_view, _get_json_from_request
+from datacat.db import db
+from datacat.db import querybuilder
 from datacat.utils.const import DATE_FORMAT, HTTP_DATE_FORMAT
+from datacat.web.utils import json_view, _get_json_from_request
 
 admin_bp = Blueprint('admin', __name__)
 
@@ -20,7 +22,6 @@ admin_bp = Blueprint('admin', __name__)
 @json_view
 def get_resource_index():
     # todo: add paging support
-    db = get_db()
     with db, db.cursor() as cur:
         cur.execute("""
         SELECT id, metadata, mimetype, mtime, ctime FROM resource
@@ -42,29 +43,32 @@ def post_resource_index():
     Then we want to return 201 + URL of the created resource in the
     Location: header.
     """
+
     content_type = 'application/octet-stream'
     if request.headers.get('Content-type'):
         content_type, _ = parse_header(request.headers['Content-type'])
 
-    db = get_db()
-
     # First, store the data in a PostgreSQL large object
-    with db:
+    with db, db.cursor() as cur:
         lobj = db.lobject(oid=0, mode='wb')
         oid = lobj.oid
         lobj.write(request.data)
         lobj.close()
 
-    # Then, create a record for the metadata
-    with db, db.cursor() as cur:
-        cur.execute("""
-        INSERT INTO "resource" (
-            metadata, auto_metadata, mimetype, data_oid, ctime, mtime
-        )
-        VALUES ('{}', '{}', %(mimetype)s, %(oid)s, %(ctime)s, %(ctime)s)
-        RETURNING id;
-        """, dict(mimetype=content_type, oid=oid,
-                  ctime=datetime.datetime.utcnow()))
+        resource_hash = 'sha1:' + hashlib.sha1(request.data).hexdigest()
+
+        data = dict(
+            metadata='{}',
+            auto_metadata='{}',
+            mimetype=content_type,
+            data_oid=oid,
+            ctime=datetime.datetime.utcnow(),
+            mtime=datetime.datetime.utcnow(),
+            hash=resource_hash)
+
+        # Then, create a record for the metadata
+        query = querybuilder.insert('resource', data)
+        cur.execute(query, data)
         resource_id = cur.fetchone()[0]
 
     # Last, retun 201 + Location: header
@@ -91,8 +95,6 @@ def put_resource_data(resource_id):
     if request.headers.get('Content-type'):
         content_type, _ = parse_header(request.headers['Content-type'])
 
-    db = get_db()
-
     with db.cursor() as cur:
         cur.execute("""
         SELECT id, data_oid FROM "resource" WHERE id = %(id)s;
@@ -103,31 +105,29 @@ def put_resource_data(resource_id):
         raise NotFound()
 
     # todo: better use a streaming response here..?
-    with db:
+    with db, db.cursor() as cur:
         lobj = db.lobject(oid=resource['data_oid'], mode='wb')
         lobj.seek(0)
         lobj.truncate()
         lobj.write(request.data)
         lobj.close()
 
-    # Then, create a record for the metadata
-    with db, db.cursor() as cur:
-        cur.execute("""
-        UPDATE "resource"
-        SET mimetype=%(mimetype)s,
-            mtime=%(mtime)s
-        WHERE id=%(id)s;
-        """, dict(mimetype=content_type, id=resource_id,
-                  mtime=datetime.datetime.utcnow()))
+        resource_hash = 'sha1:' + hashlib.sha1(request.data).hexdigest()
 
-    db.commit()
+        data = dict(
+            id=resource_id,
+            mimetype=content_type,
+            mtime=datetime.datetime.utcnow(),
+            hash=resource_hash)
+
+        query = querybuilder.update('resource', data)
+        cur.execute(query, data)
+
     return '', 200
 
 
 @admin_bp.route('/resource/<int:resource_id>', methods=['DELETE'])
 def delete_resource_data(resource_id):
-    db = get_db()
-
     with db.cursor() as cur:
         cur.execute("""
         SELECT id, data_oid FROM "resource" WHERE id = %(id)s;
@@ -141,9 +141,8 @@ def delete_resource_data(resource_id):
 
     # Then, create a record for the metadata
     with db, db.cursor() as cur:
-        cur.execute("""
-        DELETE FROM "resource" WHERE id=%(id)s;
-        """, dict(id=resource_id))
+        query = querybuilder.delete('resource')
+        cur.execute(query, dict(id=resource_id))
 
     db.commit()
     return '', 200
@@ -152,12 +151,9 @@ def delete_resource_data(resource_id):
 @admin_bp.route('/resource/<int:resource_id>/meta', methods=['GET'])
 @json_view
 def get_resource_metadata(resource_id):
-    db = get_db()
-
     with db.cursor() as cur:
-        cur.execute("""
-        SELECT id, metadata FROM "resource" WHERE id = %(id)s;
-        """, dict(id=resource_id))
+        query = querybuilder.select_pk('resource', fields='id, metadata')
+        cur.execute(query, dict(id=resource_id))
         resource = cur.fetchone()
 
     if resource is None:
@@ -170,25 +166,20 @@ def get_resource_metadata(resource_id):
 def put_resource_metadata(resource_id):
     new_metadata = _get_json_from_request()
 
-    db = get_db()
-
     with db.cursor() as cur:
-        cur.execute("""
-        SELECT id, metadata FROM "resource" WHERE id = %(id)s;
-        """, dict(id=resource_id))
+        query = querybuilder.select_pk('resource', fields='id, metadata')
+        cur.execute(query, dict(id=resource_id))
         resource = cur.fetchone()
 
     if resource is None:
         raise NotFound('This resource does not exist')
 
     with db, db.cursor() as cur:
-        cur.execute("""
-        UPDATE "resource"
-        SET metadata=%(meta)s::json,
-            mtime=%(mtime)s
-        WHERE id = %(id)s;
-        """, dict(id=resource_id, meta=json.dumps(new_metadata),
-                  mtime=datetime.datetime.utcnow()))
+        data = dict(
+            id=resource_id,
+            metadata=json.dumps(new_metadata))
+        query = querybuilder.update('resource', data)
+        cur.execute(query, data)
 
     return '', 200
 
@@ -197,12 +188,9 @@ def put_resource_metadata(resource_id):
 def patch_resource_metadata(resource_id):
     new_metadata = _get_json_from_request()
 
-    db = get_db()
-
     with db.cursor() as cur:
-        cur.execute("""
-        SELECT id, metadata FROM "resource" WHERE id = %(id)s;
-        """, dict(id=resource_id))
+        query = querybuilder.select_pk('resource', fields='id, metadata')
+        cur.execute(query, dict(id=resource_id))
         resource = cur.fetchone()
 
     if resource is None:
@@ -212,13 +200,11 @@ def patch_resource_metadata(resource_id):
     _meta.update(new_metadata)
 
     with db, db.cursor() as cur:
-        cur.execute("""
-        UPDATE "resource"
-        SET metadata=%(meta)s::json,
-            mtime=%(mtime)s
-        WHERE id = %(id)s;
-        """, dict(id=resource_id, meta=json.dumps(_meta),
-                  mtime=datetime.datetime.utcnow()))
+        data = dict(
+            id=resource_id,
+            metadata=json.dumps(_meta))
+        query = querybuilder.update('resource', data)
+        cur.execute(query, data)
 
     return '', 200
 
@@ -232,7 +218,7 @@ def patch_resource_metadata(resource_id):
 @json_view
 def get_dataset_index():
     # todo: add paging support
-    db = get_db()
+
     with db.cursor() as cur:
         cur.execute("""
         SELECT id, configuration, ctime, mtime FROM dataset
@@ -253,7 +239,6 @@ def post_dataset_index():
 
     data = _get_json_from_request()
 
-    db = get_db()
     with db, db.cursor() as cur:
         cur.execute("""
         INSERT INTO "dataset" (configuration, ctime, mtime)
@@ -270,92 +255,62 @@ def post_dataset_index():
     return '', 201, {'Location': location}
 
 
+def _get_dataset_record(dataset_id):
+    with db.cursor() as cur:
+        query = querybuilder.select_pk('dataset')
+        cur.execute(query, dict(id=dataset_id))
+        dataset = cur.fetchone()
+    if dataset is None:
+        raise NotFound()
+    return dataset
+
+
+def _update_dataset_record(dataset_id, **fields):
+    if 'configuration' in fields:
+        fields['configuration'] = json.dumps(fields['configuration'])
+    fields['mime'] = datetime.datetime.utcnow()
+    query = querybuilder.update('dataset', fields)
+
+    with db, db.cursor() as cur:
+        cur.execute(query, fields)
+
+    for plugin in current_app.plugins:
+        plugin.call_hook('dataset_update', dataset_id, fields)
+
+
 @admin_bp.route('/dataset/<int:dataset_id>', methods=['GET'])
 @json_view
 def get_dataset_configuration(dataset_id):
-    db = get_db()
-
-    with db.cursor() as cur:
-        cur.execute("""
-        SELECT id, configuration, mtime FROM "dataset" WHERE id = %(id)s;
-        """, dict(id=dataset_id))
-        dataset = cur.fetchone()
-
-    if dataset is None:
-        raise NotFound()
-
+    dataset = _get_dataset_record(dataset_id)
     headers = {
         'Last-modified': dataset['mtime'].strftime(HTTP_DATE_FORMAT),
     }
-
     return dataset['configuration'], 200, headers
 
 
 @admin_bp.route('/dataset/<int:dataset_id>', methods=['PUT'])
 def put_dataset_configuration(dataset_id):
-    data = _get_json_from_request()
-    db = get_db()
-
-    with db.cursor() as cur:
-        cur.execute("""
-        SELECT id, configuration FROM "dataset" WHERE id = %(id)s;
-        """, dict(id=dataset_id))
-        dataset = cur.fetchone()
-
-    if dataset is None:
-        raise NotFound()
-
-    with db, db.cursor() as cur:
-        cur.execute("""
-        UPDATE "dataset"
-        SET configuration=%(configuration)s::json,
-            mtime=%(mtime)s
-        WHERE id=%(id)s;
-        """, dict(id=dataset_id, configuration=json.dumps(data),
-                  mtime=datetime.datetime.utcnow()))
-
-    for plugin in current_app.plugins:
-        plugin.call_hook('dataset_update', dataset_id, data)
-
+    _get_dataset_record(dataset_id)  # Make sure it exists
+    user_conf = _get_json_from_request()
+    _update_dataset_record(dataset_id, user_conf)
     return '', 200
 
 
 @admin_bp.route('/dataset/<int:dataset_id>', methods=['PATCH'])
 def patch_dataset_configuration(dataset_id):
-    data = _get_json_from_request()
-    db = get_db()
-
-    with db.cursor() as cur:
-        cur.execute("""
-        SELECT id, configuration FROM "dataset" WHERE id = %(id)s;
-        """, dict(id=dataset_id))
-        dataset = cur.fetchone()
-
-    if dataset is None:
-        raise NotFound()
-
+    user_conf = _get_json_from_request()
+    dataset = _get_dataset_record(dataset_id)
     new_meta = dataset['configuration']
-    new_meta.update(data)
-
-    with db, db.cursor() as cur:
-        cur.execute("""
-        UPDATE "dataset"
-        SET configuration=%(configuration)s::json,
-            mtime=%(mtime)s
-        WHERE id=%(id)s;
-        """, dict(id=dataset_id, configuration=json.dumps(new_meta),
-                  mtime=datetime.datetime.utcnow()))
-
+    new_meta.update(user_conf)
+    _update_dataset_record(dataset_id, new_meta)
     return '', 200
 
 
 @admin_bp.route('/dataset/<int:dataset_id>', methods=['DELETE'])
 def delete_dataset_configuration(dataset_id):
-    db = get_db()
     with db, db.cursor() as cur:
-        cur.execute("""
-        DELETE FROM "dataset" WHERE id = %(id)s;
-        """, dict(id=dataset_id))
+        query = querybuilder.delete('dataset')
+        cur.execute(query, dict(id=dataset_id))
 
     for plugin in current_app.plugins:
         plugin.call_hook('dataset_delete', dataset_id)
