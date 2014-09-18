@@ -197,19 +197,16 @@ class HttpResourceAccessor(BaseResourceAccessor):
     """
 
     def open_resource(self):
-        if getattr(self, '_cached_resp', None) is None:
-            self._do_request()
-        return self._cached_resp.raw
+        # Note: we cannot cache response as the body will
+        #       be consumed the first time it is iterater
+        resp = requests.get(self.url, stream=True)
+        self.__dict__['_headers'] = resp.headers  # Cache them!
+        return resp.raw
 
-    def _do_request(self):
-        self._cached_resp = requests.get(self.url, stream=True)
-        self._cached_headers = self._cached_resp.headers
-
-    @property
+    @cached_property
     def _headers(self):
-        if getattr(self, '_cached_headers', None) is None:
-            self._do_request()
-        return self._cached_headers
+        resp = requests.get(self.url, stream=True)
+        return resp.headers
 
     @property
     def last_modified(self):

@@ -1,15 +1,16 @@
 datacat.utils.resource_access
 #############################
 
-.. py:module:: datacat.utils.resource_access
-
 .. automodule:: datacat.utils.resource_access
 
 
-Resource opener function
-========================
+Core functions
+==============
 
 .. autofunction:: open_resource
+
+.. autofunction:: get_resource_accessors
+
 
 
 Base interface
