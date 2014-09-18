@@ -57,7 +57,8 @@ def on_dataset_create_update(dataset_id, dataset_conf):
     .. todo:: We need a common library to download resources honoring caches
     """
 
-    import_geo_dataset.delay(dataset_id)
+    if dataset_conf.get('geo', {}).get('enabled', False):
+        import_geo_dataset.delay(dataset_id)
 
 
 @geo_plugin.hook(['dataset_delete'])
@@ -106,11 +107,23 @@ def import_geo_dataset(dataset_id):
 
 @geo_plugin.route('/data/<int:dataset_id>/export/shp')
 def export_geo_dataset_shp(dataset_id):
+    """
+    Export dataset to a Shapefile.
+    """
     pass
 
 
 @geo_plugin.route('/data/<int:dataset_id>/export/geojson')
 def export_geo_dataset_geojson(dataset_id):
+    pass
+
+
+@geo_plugin.route('/data/<int:dataset_id>/export/csv')
+def export_geo_dataset_csv(dataset_id):
+    """
+    Export dataset to CSV, in a format that can be used for
+    PostgreSQL COPY operations.
+    """
     pass
 
 
