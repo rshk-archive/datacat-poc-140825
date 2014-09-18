@@ -57,7 +57,7 @@
             
   <div class="section" id="module-datacat.utils.resource_access">
 <span id="datacat-utils-resource-access"></span><h1>datacat.utils.resource_access<a class="headerlink" href="#module-datacat.utils.resource_access" title="Permalink to this headline">¶</a></h1>
-<span class="target" id="module-datacat.utils.resource_access"></span><p>Resource access abstraction.</p>
+<p>Resource access abstraction.</p>
 <p>Allows retrieving a resource in a flexible and extendable way.</p>
 <p>The accessors distributed with the core provide support for the following urls:</p>
 <table border="1" class="docutils">
@@ -91,13 +91,20 @@
 <p class="last">Use some configuration option to allow changing the
 resource accessors.</p>
 </div>
-<div class="section" id="resource-opener-function">
-<h2>Resource opener function<a class="headerlink" href="#resource-opener-function" title="Permalink to this headline">¶</a></h2>
+<div class="section" id="core-functions">
+<h2>Core functions<a class="headerlink" href="#core-functions" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="datacat.utils.resource_access.open_resource">
 <tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">open_resource</tt><big>(</big><em>url</em><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.open_resource" title="Permalink to this definition">¶</a></dt>
 <dd><p>Open a resource from a URL, returning the appropriate accessor
 class instance.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.utils.resource_access.get_resource_accessors">
+<tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">get_resource_accessors</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.get_resource_accessors" title="Permalink to this definition">¶</a></dt>
+<dd><p>Get a dictionary mapping URL scheme names to accessor
+class for those urls.</p>
 </dd></dl>
 
 </div>
@@ -164,8 +171,12 @@ the url somewhere for later, as in default implementation.</p>
 <dl class="attribute">
 <dt id="datacat.utils.resource_access.InternalResourceAccessor.etag">
 <tt class="descname">etag</tt><a class="headerlink" href="#datacat.utils.resource_access.InternalResourceAccessor.etag" title="Permalink to this definition">¶</a></dt>
-<dd><p>Not implemented yet: might return a hash of the resource data?</p>
-</dd></dl>
+<dd></dd></dl>
+
+<dl class="attribute">
+<dt id="datacat.utils.resource_access.InternalResourceAccessor.content_type">
+<tt class="descname">content_type</tt><a class="headerlink" href="#datacat.utils.resource_access.InternalResourceAccessor.content_type" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
 
 </dd></dl>
 
@@ -236,7 +247,7 @@ the url somewhere for later, as in default implementation.</p>
   <h3><a href="../../index.html">Table Of Contents</a></h3>
   <ul>
 <li><a class="reference internal" href="#">datacat.utils.resource_access</a><ul>
-<li><a class="reference internal" href="#resource-opener-function">Resource opener function</a></li>
+<li><a class="reference internal" href="#core-functions">Core functions</a></li>
 <li><a class="reference internal" href="#base-interface">Base interface</a></li>
 <li><a class="reference internal" href="#core-resource-accessors">Core resource accessors</a></li>
 <li><a class="reference internal" href="#exceptions">Exceptions</a></li>

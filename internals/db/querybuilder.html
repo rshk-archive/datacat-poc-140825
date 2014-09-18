@@ -1,0 +1,235 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>datacat.db.querybuilder &mdash; Datacat 0.1a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Datacat 0.1a documentation" href="../../index.html" />
+    <link rel="up" title="datacat.db" href="index.html" />
+    <link rel="next" title="datacat.utils" href="../utils/index.html" />
+    <link rel="prev" title="datacat.db" href="index.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../utils/index.html" title="datacat.utils"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="datacat.db"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">datacat.db</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-datacat.db.querybuilder">
+<span id="datacat-db-querybuilder"></span><h1>datacat.db.querybuilder<a class="headerlink" href="#module-datacat.db.querybuilder" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="datacat.db.querybuilder.select_pk">
+<tt class="descclassname">datacat.db.querybuilder.</tt><tt class="descname">select_pk</tt><big>(</big><em>table</em>, <em>table_key='id'</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#datacat.db.querybuilder.select_pk" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a SQL query for selecting a single item from a table,
+usually by primary key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>table</strong> &#8211; Name of the table to operate on.</li>
+<li><strong>table_key</strong> &#8211; The name of the key field for the table, used to build
+the <tt class="docutils literal"><span class="pre">WHERE</span></tt> clause.</li>
+<li><strong>fields</strong> &#8211; List of field names to select. <tt class="docutils literal"><span class="pre">None</span></tt> (default) means &#8220;all&#8221;.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The query, as a string</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">querybuilder</span><span class="o">.</span><span class="n">select_pk</span><span class="p">(</span><span class="s">&#39;mytable&#39;</span><span class="p">,</span> <span class="n">fields</span><span class="o">=</span><span class="p">[</span><span class="s">&#39;foo&#39;</span><span class="p">,</span> <span class="s">&#39;bar&#39;</span><span class="p">])</span>
+<span class="go">&#39;SELECT &quot;foo&quot;, &quot;bar&quot; FROM mytable WHERE &quot;id&quot;=%(id)s&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.db.querybuilder.insert">
+<tt class="descclassname">datacat.db.querybuilder.</tt><tt class="descname">insert</tt><big>(</big><em>table</em>, <em>data</em>, <em>table_key='id'</em><big>)</big><a class="headerlink" href="#datacat.db.querybuilder.insert" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a SQL query for inserting some data in a table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>table</strong> &#8211; Name of the table in which to insert data</li>
+<li><strong>data</strong> &#8211; Iterable providing names of the fields to be inserted.
+Can be the data dictionary itself, or any kind of (sub)set
+of its keys.</li>
+<li><strong>table_key</strong> &#8211; The name of the key field for the table, to be returned by
+the query using a <tt class="docutils literal"><span class="pre">RETURNING</span></tt> clause.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The query, as a string</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;B&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">querybuilder</span><span class="o">.</span><span class="n">insert</span><span class="p">(</span><span class="s">&#39;mytable&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="go">&#39;INSERT INTO &quot;mytable&quot; (&quot;a&quot;, &quot;b&quot;) VALUES (%(a)s, %(b)s) RETURNING &quot;id&quot;&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.db.querybuilder.update">
+<tt class="descclassname">datacat.db.querybuilder.</tt><tt class="descname">update</tt><big>(</big><em>table</em>, <em>data</em>, <em>table_key='id'</em><big>)</big><a class="headerlink" href="#datacat.db.querybuilder.update" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a SQL query for updating table records.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>table</strong> &#8211; Name of the table to operate on.</li>
+<li><strong>data</strong> &#8211; Iterable providing names of the fields to be updated.
+Can be the data dictionary itself, or any kind of (sub)set
+of its keys.</li>
+<li><strong>table_key</strong> &#8211; The name of the key field for the table, used to build
+the <tt class="docutils literal"><span class="pre">WHERE</span></tt> clause.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The query, as a string</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">data</span> <span class="o">=</span> <span class="p">{</span><span class="s">&#39;a&#39;</span><span class="p">:</span> <span class="s">&#39;A&#39;</span><span class="p">,</span> <span class="s">&#39;b&#39;</span><span class="p">:</span> <span class="s">&#39;B&#39;</span><span class="p">}</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">querybuilder</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="s">&#39;mytable&#39;</span><span class="p">,</span> <span class="n">data</span><span class="p">)</span>
+<span class="go">&#39;UPDATE &quot;mytable&quot; SET &quot;a&quot;=%(a)s, b=%(b)s WHERE &quot;id&quot;=%(id)s&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.db.querybuilder.delete">
+<tt class="descclassname">datacat.db.querybuilder.</tt><tt class="descname">delete</tt><big>(</big><em>table</em>, <em>table_key='id'</em><big>)</big><a class="headerlink" href="#datacat.db.querybuilder.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a SQL query for deleting table records.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>table</strong> &#8211; Name of the table to operate on.</li>
+<li><strong>table_key</strong> &#8211; The name of the key field for the table, used to build
+the <tt class="docutils literal"><span class="pre">WHERE</span></tt> clause.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The query, as a string</p>
+</td>
+</tr>
+</tbody>
+</table>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">querybuilder</span><span class="o">.</span><span class="n">delete</span><span class="p">(</span><span class="s">&#39;mytable&#39;</span><span class="p">)</span>
+<span class="go">&#39;DELETE FROM mytable WHERE &quot;id&quot;=%(id)s&#39;</span>
+</pre></div>
+</div>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">datacat.db</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../utils/index.html"
+                        title="next chapter">datacat.utils</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/internals/db/querybuilder.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../utils/index.html" title="datacat.utils"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="index.html" title="datacat.db"
+             >previous</a> |</li>
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" >datacat.db</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Samuele Santi.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>
