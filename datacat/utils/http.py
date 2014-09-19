@@ -18,10 +18,10 @@ def serve_resource(resource_id, transfer_block_size=4096):
     - Set ``Last-Modified`` header (to the last modification date)
     - Honor the ``If-modified-since`` header (if the resource was not
       modified, return 304)
-    - Return response as a stream, to avoid loading everything in memory.
 
     Planned features:
 
+    - Return response as a stream, to avoid loading everything in memory.
     - Honor the ``If-Match`` / ``If-None-Match`` headers
     - Support ``Range`` requests + 206 partial response
     - Set ``Cache-control`` and ``Expire`` headers (?)
@@ -65,20 +65,27 @@ def serve_resource(resource_id, transfer_block_size=4096):
             raise BadRequest("Invalid If-Modified-Since header value")
 
         if if_modified_since_date >= resource['mtime']:
-            # The resource was not modified
-            return Response('', code=304, headers=headers)  # 304 NOT MODIFIED
+            # The resource was not modified -> return ``304 NOT MODIFIED``
+            return Response('', status=304, headers=headers)
 
     # ------------------------------------------------------------
     # Stream the response data
 
-    def generate_data():
-        with db:
-            lobject = db.lobject(oid=resource['data_oid'], mode='rb')
-            while True:
-                data = lobject.read(transfer_block_size)
-                if not data:
-                    break
-                yield data
-            lobject.close()
+    with db:
+        lobject = db.lobject(oid=resource['data_oid'], mode='rb')
+        data = lobject.read()
+        lobject.close()
 
-    return Response(generate_data, code=200, headers=headers)
+    return Response(data, status=200, headers=headers)
+
+    # def generate_data():
+    #     with db:
+    #         lobject = db.lobject(oid=resource['data_oid'], mode='rb')
+    #         while True:
+    #             data = lobject.read(transfer_block_size)
+    #             if not data:
+    #                 break
+    #             yield data
+    #         lobject.close()
+
+    # return Response(generate_data(), status=200, headers=headers)

@@ -3,7 +3,7 @@ from werkzeug.exceptions import NotFound
 
 from datacat.db import get_db
 from datacat.web.utils import json_view
-from datacat.utils.const import HTTP_DATE_FORMAT
+from datacat.utils.http import serve_resource
 
 public_bp = Blueprint('public', __name__)
 
@@ -51,32 +51,4 @@ def get_dataset(dataset_id):
 
 @public_bp.route('/resource/<int:resource_id>', methods=['GET'])
 def serve_resource_data(resource_id):
-    db = get_db()
-
-    with db, db.cursor() as cur:
-        cur.execute("""
-        SELECT id, mimetype, data_oid, mtime FROM "resource" WHERE id = %(id)s;
-        """, dict(id=resource_id))
-        resource = cur.fetchone()
-
-    # todo: check the if-modified-since header -> return 304 if not modified
-    # todo: check for partial content requests?
-    # -> we should figure out a way to delegate this to the webserver..
-    # todo: add Cache-Control, .. headers, for use by cache proxy
-
-    if resource is None:
-        raise NotFound()
-
-    # todo: better use a streaming response here..?
-    with db:
-        lobject = db.lobject(oid=resource['data_oid'], mode='rb')
-        data = lobject.read()
-        lobject.close()
-
-    mimetype = resource['mimetype'] or 'application/octet-stream'
-    headers = {
-        'Last-modified': resource['mtime'].strftime(HTTP_DATE_FORMAT),
-        'Content-type': mimetype,
-    }
-
-    return data, 200, headers
+    return serve_resource(resource_id)
