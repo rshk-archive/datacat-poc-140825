@@ -265,17 +265,20 @@ def _get_dataset_record(dataset_id):
     return dataset
 
 
-def _update_dataset_record(dataset_id, **fields):
+def _update_dataset_record(dataset_id, fields):
+    fields['id'] = dataset_id
+    _configuration = None
     if 'configuration' in fields:
+        _configuration = fields['configuration']
         fields['configuration'] = json.dumps(fields['configuration'])
-    fields['mime'] = datetime.datetime.utcnow()
+    fields['mtime'] = datetime.datetime.utcnow()
     query = querybuilder.update('dataset', fields)
 
     with db, db.cursor() as cur:
         cur.execute(query, fields)
 
     for plugin in current_app.plugins:
-        plugin.call_hook('dataset_update', dataset_id, fields)
+        plugin.call_hook('dataset_update', dataset_id, _configuration)
 
 
 @admin_bp.route('/dataset/<int:dataset_id>', methods=['GET'])
@@ -292,7 +295,7 @@ def get_dataset_configuration(dataset_id):
 def put_dataset_configuration(dataset_id):
     _get_dataset_record(dataset_id)  # Make sure it exists
     user_conf = _get_json_from_request()
-    _update_dataset_record(dataset_id, user_conf)
+    _update_dataset_record(dataset_id, {'configuration': user_conf})
     return '', 200
 
 
@@ -302,7 +305,7 @@ def patch_dataset_configuration(dataset_id):
     dataset = _get_dataset_record(dataset_id)
     new_meta = dataset['configuration']
     new_meta.update(user_conf)
-    _update_dataset_record(dataset_id, new_meta)
+    _update_dataset_record(dataset_id, {'configuration': new_meta})
     return '', 200
 
 
