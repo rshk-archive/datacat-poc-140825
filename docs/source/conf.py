@@ -119,28 +119,28 @@ html_theme_options = {
     'collapsiblesidebar': False,
     'externalrefs': False,
 
-    'footerbgcolor': '#11303d',  # #11303d
-    'footertextcolor': '#ffffff',  # #ffffff
+    'footerbgcolor': '#222',  # #11303d
+    'footertextcolor': '#eee',  # #ffffff
 
-    'sidebarbgcolor': '#1c4e63',  # #1c4e63
-    'sidebarbtncolor': '#3c6e83',  # #3c6e83
-    'sidebartextcolor': '#ffffff',  # #ffffff
-    'sidebarlinkcolor': '#98dbcc',  # #98dbcc
+    'sidebarbgcolor': '#222',  # #1c4e63
+    'sidebarbtncolor': '#333',  # #3c6e83
+    'sidebartextcolor': '#eee',  # #ffffff
+    'sidebarlinkcolor': '#dff',  # #98dbcc
 
-    'relbarbgcolor': '#133f52',  # #133f52
-    'relbartextcolor': '#ffffff',  # #ffffff
-    'relbarlinkcolor': '#ffffff',  # #ffffff
+    'relbarbgcolor': '#ccc',  # #133f52
+    'relbartextcolor': '#222',  # #ffffff
+    'relbarlinkcolor': '#444',  # #ffffff
 
     'bgcolor': '#ffffff',  # #ffffff
     'textcolor': '#000000',  # #000000
 
-    'headbgcolor': '#f2f2f2',  # #f2f2f2
-    'headtextcolor': '#20435c',  # #20435c
-    'headlinkcolor': '#c60f0f',  # #c60f0f
+    'headbgcolor': '#eee',  # #f2f2f2
+    'headtextcolor': '#222',  # #20435c
+    'headlinkcolor': '#aaa',  # #c60f0f
 
-    'linkcolor': '#355f7c',  # #355f7c
-    'visitedlinkcolor': '#355f7c',  # #355f7c
-    'codebgcolor': '#eeffcc',  # #eeffcc
+    'linkcolor': '#055',  # #355f7c
+    'visitedlinkcolor': '#055',  # #355f7c
+    'codebgcolor': '#f0ffff',  # #eeffcc
     'codetextcolor': '#333333',  # #333333
 
     'bodyfont': 'sans-serif',

@@ -1,12 +1,15 @@
 datacat.ext.core
 ################
 
+.. autodata:: datacat.ext.core.core_plugin
+
 .. automodule:: datacat.ext.core
     :members:
     :undoc-members:
-    :special-members: __init__,
-		      __getitem__, __setitem__, __delitem__,
-                      __iter__, __getattr__,
-		      __enter__, __exit__
+    :special-members:
 
-.. py:data:: core_plugin
+Celery tasks
+============
+
+.. autodata:: dummy_task
+    :annotation:
