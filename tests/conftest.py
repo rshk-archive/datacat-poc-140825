@@ -157,6 +157,14 @@ def configured_app(request, app_config):
     return app
 
 
+@pytest.yield_fixture(scope='module')
+def configured_app_ctx(configured_app):
+    ctx = configured_app.app_context()
+    ctx.push()
+    yield configured_app
+    ctx.pop()
+
+
 @pytest.fixture(scope='module')
 def redis_instance(request):
     import subprocess
