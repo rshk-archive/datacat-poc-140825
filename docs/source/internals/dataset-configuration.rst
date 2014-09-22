@@ -12,13 +12,18 @@ to generate the final metadata to be exposed.
           conventions, proven that they do not conflict with the
           currently-enabled plugins.
 
+          The datacat core doesn't enforce any schema on this configuration,
+          everything is up to the enabled plugins.
+
 Key: ``metadata``
 =================
 
-**Handled by:** :py:data:`datacat.ext.core.core_plugin`
+**Plugins behavior**
 
-Maps to a dictionary of metadata attributes to be merged as-is in the
-generated metadata object.
+:py:mod:`Core Plugin <datacat.ext.core>`
+
+    Takes values from the ``metadata`` object and expand them directly
+    in the dataset metadata.
 
 
 Key: ``resources``
@@ -39,6 +44,10 @@ URL opening is done via the :py:mod:`resource_access
 
     Unless ``resource.hidden == True``, links will be built to expose
     resources for "as-is" download, in the dataset metadata.
+
+.. warning:: "hidden" does not mean "private": although the link
+             will not be advertised, the resource is still
+             accessible by directly visiting the URL.
 
 
 Key: ``resources.url``
@@ -64,12 +73,24 @@ Key: ``geo``
 
 Hold configuration for extraction of geographical data from a dataset.
 
+**Plugins behavior**
+
+:py:mod:`Geo Plugin <datacat.ext.geo>`
+
+    - on metadata creation, add own resource links (conversions
+      to other formats)
+    - expose API endpoints to query the geographical data
+    - on dataset create/update import datasets to PostGIS table
+      (and remove those tables on delete)
+    - render tiles via mapnik
+
 
 Key: ``geo.enabled``
 --------------------
 
 If set to ``True``, indicates that this dataset should be treated as a
-geographical dataset by the Geo plugin.
+geographical dataset by the Geo plugin. Otherwise, it will simply be
+ignored.
 
 
 Key: ``geo.importer``
@@ -110,3 +131,12 @@ Must be in a format recognised by `gdalsrsinfo`_.
 
 .. warning:: Right now, the only supported format is ``EPSG:<number>``
 	     indicating the projection SRID directly.
+
+
+Key: ``geo.override_projection``
+--------------------------------
+
+Force use this projection, even if one was specified in the source.
+
+See the `geo.default_projection <#key-geo-default-projection>`_
+documentation for more info about accepted values.
