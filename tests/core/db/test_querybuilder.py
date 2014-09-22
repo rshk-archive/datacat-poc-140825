@@ -44,6 +44,8 @@ def test_querybuilder_sanity_checks():
     with pytest.raises(ValueError):
         querybuilder.insert('mytable', {'foo': 'bar'}, table_key='invalid key')
 
+    # -------------------- Update --------------------
+
     with pytest.raises(ValueError):
         querybuilder.update('invalid table name', {'foo': 'bar'})
 
