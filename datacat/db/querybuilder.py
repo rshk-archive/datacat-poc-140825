@@ -1,3 +1,17 @@
+"""
+Helper functions to build SQL queries.
+
+.. warning::
+
+    Functions shipped in this module are **not** safe against
+    SQL injection, arguments **must not** directly come from user
+    input or **must** be sanitized fist.
+
+    This is not going to be changed, as these functions are meant
+    to be called with hard-coded arguments, that won't thus
+    require any validation.
+"""
+
 from io import BytesIO
 import re
 
@@ -33,14 +47,52 @@ def select_pk(table, table_key='id', fields=None):
     if not VALID_IDENTIFIER_RE.match(table_key):
         raise ValueError("Invalid field name: {0}".format(table_key))
 
-    if not fields:  # None, empty, ...
-        fields = '*'
-
-    if isinstance(fields, (list, tuple)):
-        fields = ', '.join(fields)
+    fields = _make_fields(fields)
 
     return ('SELECT {fields} FROM "{table}" WHERE "{key}"=%({key})s'
             .format(fields=fields, table=table, key=table_key))
+
+
+def select_paged(table, fields=None, order_by='id ASC', offset=0, limit=10):
+    """
+    Build a SQL query for selecting a (paged) amount of objects
+    from a table.
+
+    :param table:
+        Name of the table to operate on.
+
+    :param fields:
+        List of field names to select (string or iterable).
+
+        ``None`` (default) means "all".
+
+    :param order_by:
+        ORDER BY clause to be used to order the returned items.
+        The SQL standard (and PostgreSQL itself) requires this to be
+        set, in order to get results in a consistent order.
+
+        Defaults to ``id ASC``
+
+    :param offset:
+        The query OFFSET (position of the first returned item).
+
+        Defaults to 0.
+
+    :param limit:
+        The query LIMIT (maximum amount of returned items).
+
+        Defaults to 10.
+
+    :return:
+        The query, as a string
+    """
+
+    fields = _make_fields(fields)
+
+    return ('SELECT {fields} FROM "{table}" ORDER BY {order_by} '
+            'OFFSET {offset} LIMIT {limit}'
+            .format(fields=fields, table=table, order_by=order_by,
+                    offset=int(offset), limit=int(limit)))
 
 
 def insert(table, data, table_key='id'):
@@ -170,3 +222,16 @@ def delete(table, table_key='id'):
         raise ValueError("Invalid field name: {0}".format(table_key))
 
     return 'DELETE FROM "{0}" WHERE "{1}"=%({1})s'.format(table, table_key)
+
+
+# ------------------------------------------------------------
+# Helper functions
+
+def _make_fields(fields):
+    if not fields:
+        return '*'
+
+    if isinstance(fields, basestring):
+        return fields
+
+    return ', '.join(fields)
