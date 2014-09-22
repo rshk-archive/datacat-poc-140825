@@ -25,6 +25,7 @@ before_script:
   - psql -U postgres -c "ALTER USER postgres PASSWORD 'postgres'"
 
 install:
+  - pip install .
   - make setup_tests
   - make tests/data
 
