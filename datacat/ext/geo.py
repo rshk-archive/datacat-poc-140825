@@ -19,12 +19,25 @@ from datacat.utils.tempfile import TemporaryDir
 
 class GeoPlugin(Plugin):
     def install(self):
+        """
+        Create required tables.
+
+        .. todo:: write this function
+        """
         # Create database schema
+        # NOTE: CANNOT CREATE EXTENSION FROM NON-SUPERUSER!
         # with admin_db, admin_db.cursor() as cur:
         #     cur.execute("create extension postgis")
+
+        # todo: we need a table to keep track of the imported datasets.
         pass
 
     def uninstall(self):
+        """
+        Remove all the previously created tables.
+
+        .. todo:: write this function
+        """
         pass
 
 
@@ -33,6 +46,9 @@ geo_plugin = GeoPlugin(__name__)
 
 @geo_plugin.hook('make_dataset_metadata')
 def make_dataset_metadata(dataset_id, config, metadata):
+    """
+    :hook: ``make_dataset_metadata``
+    """
     if not config.get('geo', {}).get('enabled', False):
         # Not a geographical dataset
         return
@@ -46,6 +62,9 @@ def make_dataset_metadata(dataset_id, config, metadata):
 def on_dataset_create_update(dataset_id, dataset_conf):
     """
     On dataset create/update, import geographical resources.
+
+    :hook: ``dataset_create``
+    :hook: ``dataset_update``
 
     This means:
 
@@ -65,6 +84,8 @@ def on_dataset_delete(dataset_id):
     """
     On dataset delete, also delete geographical resources.
 
+    :hook: ``dataset_delete``
+
     - Delete postgis tables containing the geo data
 
     .. todo:: related things, like cached copies, should be deleted
@@ -79,6 +100,8 @@ def import_geo_dataset(dataset_id):
     """
     Task to import geographical resources from a dataset
     into a PostGIS table.
+
+    :param dataset_id: Id of the dataset to import
     """
 
     with db.cursor() as cur:
@@ -107,21 +130,66 @@ def import_geo_dataset(dataset_id):
 @geo_plugin.route('/data/<int:dataset_id>/export/shp')
 def export_geo_dataset_shp(dataset_id):
     """
-    Export dataset to a Shapefile.
+    Export dataset to `Esri Shapefile
+    <http://en.wikipedia.org/wiki/Shapefile>`_ format.
+
+    :HTTP URL: ``/data/<int:dataset_id>/export/shp``
+
+    .. warning:: Not implemented yet
     """
     pass
 
 
 @geo_plugin.route('/data/<int:dataset_id>/export/geojson')
 def export_geo_dataset_geojson(dataset_id):
+    """
+    Export dataset to `GeoJSON <http://geojson.org/>`_.
+
+    :HTTP URL: ``/data/<int:dataset_id>/export/geojson``
+
+    .. warning:: Not implemented yet
+    """
     pass
 
 
 @geo_plugin.route('/data/<int:dataset_id>/export/csv')
 def export_geo_dataset_csv(dataset_id):
     """
-    Export dataset to CSV, in a format that can be used for
-    PostgreSQL COPY operations.
+    Export dataset to CSV, in a format suitable for use with
+    `PostgreSQL COPY
+    <http://www.postgresql.org/docs/9.3/static/sql-copy.html>`_
+    operations.
+
+    :HTTP URL: ``/data/<int:dataset_id>/export/csv``
+
+    .. warning:: Not implemented yet
+    """
+    pass
+
+
+@geo_plugin.route('/data/<int:dataset_id>/export/kml')
+def export_geo_dataset_kml(dataset_id):
+    """
+    Export dataset to `Keyhole Markup Language
+    <https://developers.google.com/kml/>`_, mostly for displaying
+    on Google Earth.
+
+    :HTTP URL: ``/data/<int:dataset_id>/export/kml``
+
+    .. warning:: Not implemented yet
+    """
+    pass
+
+
+@geo_plugin.route('/data/<int:dataset_id>/export/gml')
+def export_geo_dataset_gml(dataset_id):
+    """
+    Export dataset to `Geography Markup Language
+    <http://www.opengeospatial.org/standards/gml>`_.
+
+    :HTTP URL: ``/data/<int:dataset_id>/export/gml``
+
+    .. warning:: Not implemented yet
     """
     pass
 
@@ -176,10 +244,12 @@ def import_dataset_find_shapefiles_DUMMY(dataset_id, dataset_conf):
 
 
 def import_dataset_find_shapefiles(dataset_id, dataset_conf):
-    # ------------------------------------------------------------
-    # - Find all the shapefiles inside the zip and extract them
-    #   to a temporary path
-    # ------------------------------------------------------------
+    """
+    Find all the Shapefiles from archives listed as dataset resources.
+
+    :param dataset_id: The dataset id
+    :param dataset_conf: The dataset configuration
+    """
 
     destination_table = 'geodata_{0}'.format(dataset_id)
 

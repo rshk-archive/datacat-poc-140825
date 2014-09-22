@@ -1,6 +1,6 @@
 from urlparse import urlparse
 
-from flask import url_for
+from flask import url_for, current_app
 from werkzeug.exceptions import NotFound
 
 from datacat.db import db
@@ -9,11 +9,32 @@ from datacat.web.utils import json_view
 
 
 core_plugin = Plugin(__name__)
-core_plugin.__doc__ = """The core plugin"""
+core_plugin.__doc__ = """
+The core plugin, providing most of the "standard" functionality.
+Having the core functionality in a plugins allows users to easily
+extend and replace it to fit any custom needs.
+"""
+
+
+def _make_plugins_make_dataset_metadata(dataset_id, config):
+    """
+    Create dataset metadata, by asking plugins to contribute
+    calling their ``make_dataset_metadata`` hook.
+    """
+
+    metadata = {}
+    for plugin in current_app.plugins:
+        plugin.call_hook('make_dataset_metadata', dataset_id, config, metadata)
+    metadata['id'] = dataset_id
+    return metadata
 
 
 @core_plugin.hook('make_dataset_metadata')
 def make_dataset_metadata(dataset_id, config, metadata):
+    """
+    :hook: make_dataset_metadata
+    """
+
     if 'metadata' in config:
         metadata.update(config['metadata'])
 
@@ -38,40 +59,94 @@ def make_dataset_metadata(dataset_id, config, metadata):
             })
 
 
-# @core_plugin.route('/data/<int:dataset_id>/resource/<int:resource_id>')
-# @json_view
-# def get_dataset_resource(dataset_id, resource_id):
-#     with db.cursor() as cur:
-#         cur.execute("SELECT id, configuration FROM dataset WHERE id = %(id)s",
-#                     dict(id=dataset_id))
-#         row = cur.fetchone()
-#         if row is None:
-#             raise NotFound("The dataset was not found")
-#         dataset_conf = row['configuration']
+@core_plugin.route('/data/', methods=['GET'])
+@json_view
+def get_dataset_index():
+    """
+    API view returning a (paged) list of datasets.
 
-#     try:
-#         resource_conf = dataset_conf['resources'][resource_id]
+    :HTTP url: ``/data/``
+    :HTTP methods: ``GET``
 
-#     except (KeyError, IndexError):
-#         raise NotFound("The resource was not found")
+    The view returns a list of dictionaries representing dataset
+    objects.  The schema is entirely up to the enabled plugins; the
+    core implementation only guarantees that the ``id`` field is set
+    to the correct dataset id.
 
-#     resource_type = resource_conf.get('type')
-#     if resource_type == 'internal':
-#         url = url_for('public.serve_resource_data',
-#                       resource_id=resource_conf['id'],
-#                       _external=True)
+    **Example request:**
 
-#     elif 'url' in resource_conf:
-#         url = resource_conf['url']
+    .. code-block:: http
 
-#     else:
-#         raise NotFound("Unable to find an URL for the resource")
+        GET /api/1/data/ HTTP/1.0
 
-#     return '', 302, {'Location': url}
-#     # return redirect(url, code=302)
+    **Example response:**
+
+    .. code-block:: http
+
+        HTTP/1.0 200 OK
+        Content-type: application/json
+        Link: ?start=10&size=10; rel=next, ?start=50&size=10; rel=last
+        X-page-total: 60
+        X-page-start: 0
+        X-page-size: 10
+
+    .. code-block:: python
+
+            [{"id": 1}, {"id": 2}, {"id": 3}, ..., {"id": 10}]
+    """
+    # todo: add paging support
+    with db.cursor() as cur:
+        cur.execute("""
+        SELECT id, configuration FROM dataset
+        ORDER BY id ASC
+        """)
+        return [_make_plugins_make_dataset_metadata(x['id'], x['configuration'])
+                for x in cur.fetchall()]
 
 
-@core_plugin.task()
+@core_plugin.route('/data/<int:dataset_id>', methods=['GET'])
+@json_view
+def get_dataset(dataset_id):
+    """
+    API view returning information for a single dataset.
+
+    :HTTP url: ``/data/<dataset_id>``
+    :HTTP methods: ``GET``
+
+    **Example request:**
+
+    .. code-block:: http
+
+        GET /api/1/data/1 HTTP/1.0
+
+    **Example response:**
+
+    .. code-block:: http
+
+        HTTP/1.0 200 OK
+        Content-type: application/json
+
+    .. code-block:: python
+
+            {"id": 1, ...}
+    """
+    with db.cursor() as cur:
+        cur.execute("SELECT id, configuration FROM dataset"
+                    " WHERE id=%s;", (dataset_id,))
+        result = cur.fetchone()
+
+    if result is None:
+        raise NotFound("Dataset not found: {0}".format(dataset_id))
+
+    return _make_plugins_make_dataset_metadata(
+        result['id'], result['configuration'])
+
+
+@core_plugin.task(name='datacat.ext.core.dummy_task')
 def dummy_task(name):
-    open('/tmp/task-done', 'w').write('TASK DONE\n')
+    """
+    No-op Celery task, used for testing purposes.
+
+    .. todo:: Move all the testing stuff to the testing plugin
+    """
     return 'Hello, {0}!'.format(name)

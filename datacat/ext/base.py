@@ -154,3 +154,9 @@ class Plugin(object):
 
         from datacat.core import celery_placeholder_app
         return celery_placeholder_app.task(*a, **kw)
+
+    def __repr__(self):
+        return '{0}.{1}({2!r})'.format(
+            self.__class__.__module__,
+            self.__class__.__name__,
+            self.import_name)
