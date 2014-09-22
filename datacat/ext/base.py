@@ -5,8 +5,11 @@ from flask import Blueprint
 class Plugin(object):
     def __init__(self, import_name):
         """
-        :param config:
-            The main application configuration
+        :param import_name:
+            Usually the name of the module concatenated with the
+            plugin name, eg::
+
+                myplugin = Plugin(__name__ + '.myplugin')
         """
         self.import_name = import_name
         self._hooks = defaultdict(list)
@@ -26,19 +29,38 @@ class Plugin(object):
                 app.celery.task(*a, **kw)(func)
 
     def install(self):
+        """
+        Method called to install the plugin, i.e. the first time it appears
+        in the ``PLUGINS`` list.
+        """
         pass
 
     def uninstall(self):
+        """
+        Method called to completely uninstall a plugin.
+
+        It should be called via some administration CLI command.
+        """
         pass
 
     def enable(self):
+        """
+        Method called when a plugin gets enabled, i.e. when it appears
+        in the ``PLUGINS`` list after it was missing.
+        """
         pass
 
     def disable(self):
+        """
+        Method called when a plugin gets disabled, i.e. when it disappears
+        from the ``PLUGINS`` list.
+        """
         pass
 
     def upgrade(self):
-        """Perform necessary database schema upgrades"""
+        """
+        Perform necessary database schema upgrades.
+        """
 
         from datacat.db import db_info
 
@@ -95,6 +117,8 @@ class Plugin(object):
 
         :param hook_type: The hook type
         :return: a list of return values for all the called handlers
+
+        .. todo:: Make this a generator -> update tests
         """
         return [hook(*a, **kw) for hook in self._hooks.get(hook_type, [])]
 
@@ -102,7 +126,9 @@ class Plugin(object):
         """
         Decorator function to register an API view for this plugin.
 
-        The underlying :py:meth:`Blueprint.route()` will be called.
+        The underlying `Blueprint.route()
+        <http://flask.pocoo.org/docs/latest/api/#flask.Blueprint.route>`_
+        method will be called.
 
         Blueprints are then registered under the ``/api/1/`` prefix.
         """
@@ -122,6 +148,8 @@ class Plugin(object):
                 @myplugin.task(name=__name__ + '.mytask')
                 def mytask(foo, bar):
                     pass
+
+        .. todo:: Automate prefixing name with ``__name__``
         """
 
         from datacat.core import celery_placeholder_app
