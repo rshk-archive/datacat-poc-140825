@@ -28,25 +28,29 @@ http://rshk.github.io/datacat-poc-140825/
 Technology
 ==========
 
-**Core:**
+The application is written in **Python** (2.7), based on **Flask**.
 
-Mandatory requirements to make the application work.
+It uses **PostgreSQL** (9.3+) as main storage, via **Psycopg2**.
 
-- Python 2.7 (Flask, Psycopg2)
-- PostgreSQL 9.2+ (we need JSON column type) [tested on 9.4]
-- Celery for the asynchronous tasks running facilities
+It also uses **Celery** for running async tasks, which in turn requires
+a message broker, such as **RabbitMQ** or **Redis**.
 
-**Core plugins:**
+The geographical plugin (shipped with the core) requires a **PostGIS**
+enabled database. It also uses the **shp2pgsql** script to import
+ESRI Shapefiles and **Mapnik** to render tiles from geographical data.
 
-Requirements for plugins shipped with the core, but not mandatory.
+Supported versions
+------------------
 
-- PostGIS (for the geo data plugin)
-- Mapnik (for rendering geo data)
-- shp2pgsql, for importing geo data from shapefiles
+- **Python:** 2.7
+- **PostgreSQL:** 9.3, 9.4
+
+Notes
+-----
 
 .. note:: In order to use Celery-based tasks (only required for
-          certain plugins, you'll also need to install and configure a
-          broker, such as RabbitMQ or Redis).
+          certain plugins), you'll also need to install and configure a
+          broker, such as RabbitMQ or Redis.
 
 	  See `Celery - Brokers
 	  <http://docs.celeryproject.org/en/latest/getting-started/brokers/index.html>`_
