@@ -1,5 +1,5 @@
-Internals
-#########
+datacat.ext
+###########
 
 
 Contents:
@@ -9,4 +9,3 @@ Contents:
     :glob:
 
     *
-    */index

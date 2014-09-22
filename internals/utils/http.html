@@ -1,0 +1,158 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>datacat.utils.http &mdash; Datacat 0.1a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Datacat 0.1a documentation" href="../../index.html" />
+    <link rel="up" title="datacat.utils" href="index.html" />
+    <link rel="next" title="datacat.utils.resource_access" href="resource_access.html" />
+    <link rel="prev" title="datacat.utils.files" href="files.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="resource_access.html" title="datacat.utils.resource_access"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="files.html" title="datacat.utils.files"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">datacat.utils</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-datacat.utils.http">
+<span id="datacat-utils-http"></span><h1>datacat.utils.http<a class="headerlink" href="#module-datacat.utils.http" title="Permalink to this headline">¶</a></h1>
+<dl class="function">
+<dt id="datacat.utils.http.serve_resource">
+<tt class="descclassname">datacat.utils.http.</tt><tt class="descname">serve_resource</tt><big>(</big><em>resource_id</em>, <em>transfer_block_size=4096</em><big>)</big><a class="headerlink" href="#datacat.utils.http.serve_resource" title="Permalink to this definition">¶</a></dt>
+<dd><p>Serve resource data via HTTP, setting ETag and Last-Modified headers
+and honoring <tt class="docutils literal"><span class="pre">If-None-Match</span></tt> and <tt class="docutils literal"><span class="pre">If-modified-since</span></tt> headers.</p>
+<p>Currently supported features:</p>
+<ul class="simple">
+<li>Set <tt class="docutils literal"><span class="pre">ETag</span></tt> header (to the hash of resource body)</li>
+<li>Set <tt class="docutils literal"><span class="pre">Last-Modified</span></tt> header (to the last modification date)</li>
+<li>Honor the <tt class="docutils literal"><span class="pre">If-modified-since</span></tt> header (if the resource was not
+modified, return 304)</li>
+</ul>
+<p>Planned features:</p>
+<ul class="simple">
+<li>Return response as a stream, to avoid loading everything in memory.</li>
+<li>Honor the <tt class="docutils literal"><span class="pre">If-Match</span></tt> / <tt class="docutils literal"><span class="pre">If-None-Match</span></tt> headers</li>
+<li>Support <tt class="docutils literal"><span class="pre">Range</span></tt> requests + 206 partial response</li>
+<li>Set <tt class="docutils literal"><span class="pre">Cache-control</span></tt> and <tt class="docutils literal"><span class="pre">Expire</span></tt> headers (?)</li>
+<li>Properly support HEAD requests.</li>
+</ul>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>resource_id</strong> &#8211; Id of the resource to be served</li>
+<li><strong>transfer_block_size</strong> &#8211; Size of the streaming response size. Defaults to 4096 bytes.</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">A valid return value for a Flask view.</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="files.html"
+                        title="previous chapter">datacat.utils.files</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="resource_access.html"
+                        title="next chapter">datacat.utils.resource_access</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/internals/utils/http.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="resource_access.html" title="datacat.utils.resource_access"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="files.html" title="datacat.utils.files"
+             >previous</a> |</li>
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" >datacat.utils</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Samuele Santi.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

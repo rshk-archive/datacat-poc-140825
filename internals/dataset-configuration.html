@@ -69,68 +69,36 @@ currently-enabled plugins.</p>
 </div>
 <div class="section" id="key-metadata">
 <h2>Key: <tt class="docutils literal"><span class="pre">metadata</span></tt><a class="headerlink" href="#key-metadata" title="Permalink to this headline">¶</a></h2>
-<p><strong>Handled by:</strong> <tt class="xref py py-data docutils literal"><span class="pre">datacat.ext.core.core_plugin</span></tt></p>
+<p><strong>Handled by:</strong> <a class="reference internal" href="ext/core.html#datacat.ext.core.core_plugin" title="datacat.ext.core.core_plugin"><tt class="xref py py-data docutils literal"><span class="pre">datacat.ext.core.core_plugin</span></tt></a></p>
 <p>Maps to a dictionary of metadata attributes to be merged as-is in the
 generated metadata object.</p>
 </div>
 <div class="section" id="key-resources">
 <h2>Key: <tt class="docutils literal"><span class="pre">resources</span></tt><a class="headerlink" href="#key-resources" title="Permalink to this headline">¶</a></h2>
-<p><strong>Handled by:</strong> <tt class="xref py py-data docutils literal"><span class="pre">datacat.ext.core.core_plugin</span></tt>, others.</p>
-<p>Maps to a list of resources belonging to this dataset.</p>
-<p>By default, links will be built to expose the resources as-is in the
-dataset metadata, but plugins might extend this by adding their own
-resources, ...</p>
-<div class="section" id="key-resources-type">
-<h3>Key: <tt class="docutils literal"><span class="pre">resources.type</span></tt><a class="headerlink" href="#key-resources-type" title="Permalink to this headline">¶</a></h3>
-<p>Indicates the type of linked resource.</p>
-<p>Right now, the only supported values are:</p>
-<table border="1" class="docutils">
-<colgroup>
-<col width="25%" />
-<col width="49%" />
-<col width="26%" />
-</colgroup>
-<thead valign="bottom">
-<tr class="row-odd"><th class="head">Value</th>
-<th class="head">Description</th>
-<th class="head">Required fields</th>
-</tr>
-</thead>
-<tbody valign="top">
-<tr class="row-even"><td><tt class="docutils literal"><span class="pre">internal</span></tt></td>
-<td>Link to an internally-stored
-resource</td>
-<td><tt class="docutils literal"><span class="pre">id</span></tt></td>
-</tr>
-<tr class="row-odd"><td><tt class="docutils literal"><span class="pre">url</span></tt></td>
-<td>The resource can be found at
-a given URL</td>
-<td><tt class="docutils literal"><span class="pre">url</span></tt></td>
-</tr>
-</tbody>
-</table>
-<p>..of course, again, a plugin can accept its own.</p>
-</div>
-<div class="section" id="key-resources-id">
-<h3>Key: <tt class="docutils literal"><span class="pre">resources.id</span></tt><a class="headerlink" href="#key-resources-id" title="Permalink to this headline">¶</a></h3>
-<p>For resources with <tt class="docutils literal"><span class="pre">{&quot;type&quot;:</span> <span class="pre">&quot;internal&quot;}</span></tt>, the id of the
-internally-stored resource.</p>
-</div>
+<p>List of resouce items.</p>
+<p>Each item is either a string (representing directly the URL of the
+resource) or a dictionary. In the latter case, the resource URL MUST
+be provided via the &#8220;url&#8221; dictionary item.</p>
+<p>URL opening is done via the <a class="reference internal" href="utils/resource_access.html#module-datacat.utils.resource_access" title="datacat.utils.resource_access"><tt class="xref py py-mod docutils literal"><span class="pre">resource_access</span></tt></a> system.</p>
+<p><strong>Plugins behavior</strong></p>
+<p><a class="reference internal" href="ext/core.html#module-datacat.ext.core" title="datacat.ext.core"><tt class="xref py py-mod docutils literal"><span class="pre">Core</span> <span class="pre">Plugin</span></tt></a></p>
+<blockquote>
+<div>Unless <tt class="docutils literal"><span class="pre">resource.hidden</span> <span class="pre">==</span> <span class="pre">True</span></tt>, links will be built to expose
+resources for &#8220;as-is&#8221; download, in the dataset metadata.</div></blockquote>
 <div class="section" id="key-resources-url">
 <h3>Key: <tt class="docutils literal"><span class="pre">resources.url</span></tt><a class="headerlink" href="#key-resources-url" title="Permalink to this headline">¶</a></h3>
-<p>For resources with <tt class="docutils literal"><span class="pre">{&quot;type&quot;:</span> <span class="pre">&quot;url&quot;}</span></tt>, the url at which the resource
-can be found.</p>
+<p>The resource URL, eg. <tt class="docutils literal"><span class="pre">http://www.example.com/myresource.json</span></tt> or
+<tt class="docutils literal"><span class="pre">internal:///1234</span></tt>.</p>
+<p>URLs will be opened via <a class="reference internal" href="utils/resource_access.html#datacat.utils.resource_access.open_resource" title="datacat.utils.resource_access.open_resource"><tt class="xref py py-func docutils literal"><span class="pre">open_resource()</span></tt></a>.</p>
 </div>
-<div class="section" id="key-resources-exposed">
-<h3>Key: <tt class="docutils literal"><span class="pre">resources.exposed</span></tt><a class="headerlink" href="#key-resources-exposed" title="Permalink to this headline">¶</a></h3>
+<div class="section" id="key-resources-hidden">
+<h3>Key: <tt class="docutils literal"><span class="pre">resources.hidden</span></tt><a class="headerlink" href="#key-resources-hidden" title="Permalink to this headline">¶</a></h3>
 <div class="admonition-todo admonition" id="index-0">
 <p class="first admonition-title">Todo</p>
-<p class="last">implement the <tt class="docutils literal"><span class="pre">resources.exposed</span></tt> dataset configuration functionality</p>
+<p class="last">implement the <tt class="docutils literal"><span class="pre">resources.hidden</span></tt> dataset configuration functionality</p>
 </div>
-<p>Defaults to <tt class="docutils literal"><span class="pre">True</span></tt>. Indicates whether the &#8220;raw&#8221; resource should be
-exposed directly or not. Setting this to <tt class="docutils literal"><span class="pre">False</span></tt> is especially
-useful in cases in which the resource requires further cleanup before
-exposing through the API.</p>
+<p>If set to <tt class="docutils literal"><span class="pre">True</span></tt>, the default plugin will leave this resource alone, and
+will not add a download link.</p>
 </div>
 </div>
 <div class="section" id="key-geo">
@@ -151,13 +119,17 @@ from the resources.</p>
 structure of archives. Extracts all the encountered shapefiles along
 the path.</li>
 </ul>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">Write more importers, with improved &#8220;autodiscovery&#8221; mechanism</p>
+</div>
 </div>
 <div class="section" id="key-geo-default-projection">
 <h3>Key <tt class="docutils literal"><span class="pre">geo.default_projection</span></tt><a class="headerlink" href="#key-geo-default-projection" title="Permalink to this headline">¶</a></h3>
 <p>Default projection to be used for datasets that are not specifying one
 (eg. shapefiles missing a <tt class="docutils literal"><span class="pre">.prj</span></tt> file).</p>
 <p>Must be in a format recognised by <a class="reference external" href="http://www.gdal.org/gdalsrsinfo.html">gdalsrsinfo</a>.</p>
-<div class="admonition-todo admonition" id="index-1">
+<div class="admonition-todo admonition" id="index-2">
 <p class="first admonition-title">Todo</p>
 <p>Support reading projection information in a safe way using
 gdalsrsinfo; from the docs:</p>
@@ -189,10 +161,8 @@ indicating the projection SRID directly.</p>
 <li><a class="reference internal" href="#">Dataset configuration</a><ul>
 <li><a class="reference internal" href="#key-metadata">Key: <tt class="docutils literal"><span class="pre">metadata</span></tt></a></li>
 <li><a class="reference internal" href="#key-resources">Key: <tt class="docutils literal"><span class="pre">resources</span></tt></a><ul>
-<li><a class="reference internal" href="#key-resources-type">Key: <tt class="docutils literal"><span class="pre">resources.type</span></tt></a></li>
-<li><a class="reference internal" href="#key-resources-id">Key: <tt class="docutils literal"><span class="pre">resources.id</span></tt></a></li>
 <li><a class="reference internal" href="#key-resources-url">Key: <tt class="docutils literal"><span class="pre">resources.url</span></tt></a></li>
-<li><a class="reference internal" href="#key-resources-exposed">Key: <tt class="docutils literal"><span class="pre">resources.exposed</span></tt></a></li>
+<li><a class="reference internal" href="#key-resources-hidden">Key: <tt class="docutils literal"><span class="pre">resources.hidden</span></tt></a></li>
 </ul>
 </li>
 <li><a class="reference internal" href="#key-geo">Key: <tt class="docutils literal"><span class="pre">geo</span></tt></a><ul>

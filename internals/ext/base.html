@@ -6,46 +6,47 @@
   <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
     
-    <title>Plugins interface &mdash; Datacat 0.1a documentation</title>
+    <title>datacat.ext.base &mdash; Datacat 0.1a documentation</title>
     
-    <link rel="stylesheet" href="../_static/default.css" type="text/css" />
-    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
     
     <script type="text/javascript">
       var DOCUMENTATION_OPTIONS = {
-        URL_ROOT:    '../',
+        URL_ROOT:    '../../',
         VERSION:     '0.1a',
         COLLAPSE_INDEX: false,
         FILE_SUFFIX: '.html',
         HAS_SOURCE:  true
       };
     </script>
-    <script type="text/javascript" src="../_static/jquery.js"></script>
-    <script type="text/javascript" src="../_static/underscore.js"></script>
-    <script type="text/javascript" src="../_static/doctools.js"></script>
-    <link rel="top" title="Datacat 0.1a documentation" href="../index.html" />
-    <link rel="up" title="Internals" href="index.html" />
-    <link rel="next" title="datacat.db" href="db/index.html" />
-    <link rel="prev" title="Dataset configuration" href="dataset-configuration.html" /> 
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Datacat 0.1a documentation" href="../../index.html" />
+    <link rel="up" title="datacat.ext" href="index.html" />
+    <link rel="next" title="datacat.ext.core" href="core.html" />
+    <link rel="prev" title="datacat.ext" href="index.html" /> 
   </head>
   <body>
     <div class="related">
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
+          <a href="../../genindex.html" title="General Index"
              accesskey="I">index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
+          <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="db/index.html" title="datacat.db"
+          <a href="core.html" title="datacat.ext.core"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="dataset-configuration.html" title="Dataset configuration"
+          <a href="index.html" title="datacat.ext"
              accesskey="P">previous</a> |</li>
-        <li><a href="../index.html">Datacat 0.1a documentation</a> &raquo;</li>
-          <li><a href="index.html" accesskey="U">Internals</a> &raquo;</li> 
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">datacat.ext</a> &raquo;</li> 
       </ul>
     </div>  
 
@@ -54,16 +55,9 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="plugins-interface">
-<h1>Plugins interface<a class="headerlink" href="#plugins-interface" title="Permalink to this headline">¶</a></h1>
-<p>Plugins are used to extend the application functionality, by offering
-functionality such as:</p>
-<ul class="simple">
-<li>add views to the API, through a blueprint</li>
-<li>expose some &#8220;hooks&#8221; that will be called in other parts of the application</li>
-<li>expose celery tasks</li>
-</ul>
-<span class="target" id="module-datacat.ext.base"></span><dl class="class">
+  <div class="section" id="module-datacat.ext.base">
+<span id="datacat-ext-base"></span><h1>datacat.ext.base<a class="headerlink" href="#module-datacat.ext.base" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
 <dt id="datacat.ext.base.Plugin">
 <em class="property">class </em><tt class="descclassname">datacat.ext.base.</tt><tt class="descname">Plugin</tt><big>(</big><em>import_name</em><big>)</big><a class="headerlink" href="#datacat.ext.base.Plugin" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
@@ -192,36 +186,6 @@ method will be called.</p>
 
 </dd></dl>
 
-<div class="section" id="example-plugin">
-<h2>Example plugin<a class="headerlink" href="#example-plugin" title="Permalink to this headline">¶</a></h2>
-<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">flask</span> <span class="kn">import</span> <span class="n">url_for</span>
-<span class="kn">from</span> <span class="nn">werkzeug.exceptions</span> <span class="kn">import</span> <span class="n">NotFound</span>
-
-<span class="kn">from</span> <span class="nn">datacat.db</span> <span class="kn">import</span> <span class="n">get_db</span>
-<span class="kn">from</span> <span class="nn">datacat.ext.base</span> <span class="kn">import</span> <span class="n">Plugin</span>
-<span class="kn">from</span> <span class="nn">datacat.web.utils</span> <span class="kn">import</span> <span class="n">json_view</span>
-
-
-<span class="n">core_plugin</span> <span class="o">=</span> <span class="n">Plugin</span><span class="p">(</span><span class="n">__name__</span><span class="p">)</span>
-
-
-<span class="nd">@core_plugin.hook</span><span class="p">(</span><span class="s">&#39;dataset_create&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">on_dataset_create</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">,</span> <span class="n">config</span><span class="p">):</span>
-    <span class="c"># A dataset was created -- let&#39;s do something!</span>
-    <span class="n">do_something_with_dataset</span><span class="o">.</span><span class="n">delay</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">)</span>
-
-<span class="nd">@core_plugin.task</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">__name__</span> <span class="o">+</span> <span class="s">&#39;.do_something_with_dataset&#39;</span><span class="p">)</span>
-<span class="k">def</span> <span class="nf">do_something_with_dataset</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">):</span>
-    <span class="k">pass</span>
-
-<span class="nd">@core_plugin.route</span><span class="p">(</span><span class="s">&#39;/data/&lt;int:dataset_id&gt;/my-custom-view&#39;</span><span class="p">)</span>
-<span class="nd">@json_view</span>
-<span class="k">def</span> <span class="nf">get_dataset_custom_view</span><span class="p">(</span><span class="n">dataset_id</span><span class="p">):</span>
-    <span class="c"># Return something to the user..</span>
-    <span class="k">return</span> <span class="p">{</span><span class="s">&#39;message&#39;</span><span class="p">:</span> <span class="s">&#39;Hello, world!&#39;</span><span class="p">}</span>
-</pre></div>
-</div>
-</div>
 </div>
 
 
@@ -230,28 +194,20 @@ method will be called.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
-  <h3><a href="../index.html">Table Of Contents</a></h3>
-  <ul>
-<li><a class="reference internal" href="#">Plugins interface</a><ul>
-<li><a class="reference internal" href="#example-plugin">Example plugin</a></li>
-</ul>
-</li>
-</ul>
-
   <h4>Previous topic</h4>
-  <p class="topless"><a href="dataset-configuration.html"
-                        title="previous chapter">Dataset configuration</a></p>
+  <p class="topless"><a href="index.html"
+                        title="previous chapter">datacat.ext</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="db/index.html"
-                        title="next chapter">datacat.db</a></p>
+  <p class="topless"><a href="core.html"
+                        title="next chapter">datacat.ext.core</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
-    <li><a href="../_sources/internals/plugins-interface.txt"
+    <li><a href="../../_sources/internals/ext/base.txt"
            rel="nofollow">Show Source</a></li>
   </ul>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
-    <form class="search" action="../search.html" method="get">
+    <form class="search" action="../../search.html" method="get">
       <input type="text" name="q" />
       <input type="submit" value="Go" />
       <input type="hidden" name="check_keywords" value="yes" />
@@ -270,19 +226,20 @@ method will be called.</p>
       <h3>Navigation</h3>
       <ul>
         <li class="right" style="margin-right: 10px">
-          <a href="../genindex.html" title="General Index"
+          <a href="../../genindex.html" title="General Index"
              >index</a></li>
         <li class="right" >
-          <a href="../py-modindex.html" title="Python Module Index"
+          <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="db/index.html" title="datacat.db"
+          <a href="core.html" title="datacat.ext.core"
              >next</a> |</li>
         <li class="right" >
-          <a href="dataset-configuration.html" title="Dataset configuration"
+          <a href="index.html" title="datacat.ext"
              >previous</a> |</li>
-        <li><a href="../index.html">Datacat 0.1a documentation</a> &raquo;</li>
-          <li><a href="index.html" >Internals</a> &raquo;</li> 
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" >datacat.ext</a> &raquo;</li> 
       </ul>
     </div>
     <div class="footer">

@@ -1,0 +1,205 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>datacat.ext.geo &mdash; Datacat 0.1a documentation</title>
+    
+    <link rel="stylesheet" href="../../_static/default.css" type="text/css" />
+    <link rel="stylesheet" href="../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../',
+        VERSION:     '0.1a',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../_static/doctools.js"></script>
+    <link rel="top" title="Datacat 0.1a documentation" href="../../index.html" />
+    <link rel="up" title="datacat.ext" href="index.html" />
+    <link rel="next" title="datacat.utils" href="../utils/index.html" />
+    <link rel="prev" title="datacat.ext.core" href="core.html" /> 
+  </head>
+  <body>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../utils/index.html" title="datacat.utils"
+             accesskey="N">next</a> |</li>
+        <li class="right" >
+          <a href="core.html" title="datacat.ext.core"
+             accesskey="P">previous</a> |</li>
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" accesskey="U">datacat.ext</a> &raquo;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="module-datacat.ext.geo">
+<span id="datacat-ext-geo"></span><h1>datacat.ext.geo<a class="headerlink" href="#module-datacat.ext.geo" title="Permalink to this headline">¶</a></h1>
+<p>Datacat Geographical Plugin</p>
+<ul class="simple">
+<li>Imports resources (from an URL or internal resource) into a PostGIS table</li>
+<li>Exports geographical data into various formats</li>
+</ul>
+<dl class="class">
+<dt id="datacat.ext.geo.GeoPlugin">
+<em class="property">class </em><tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">GeoPlugin</tt><big>(</big><em>import_name</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.GeoPlugin" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="datacat.ext.geo.GeoPlugin.install">
+<tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.geo.GeoPlugin.install" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="datacat.ext.geo.GeoPlugin.uninstall">
+<tt class="descname">uninstall</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.geo.GeoPlugin.uninstall" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.geo.make_dataset_metadata">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">make_dataset_metadata</tt><big>(</big><em>dataset_id</em>, <em>config</em>, <em>metadata</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.make_dataset_metadata" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.geo.on_dataset_create_update">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">on_dataset_create_update</tt><big>(</big><em>dataset_id</em>, <em>dataset_conf</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.on_dataset_create_update" title="Permalink to this definition">¶</a></dt>
+<dd><p>On dataset create/update, import geographical resources.</p>
+<p>This means:</p>
+<ul class="simple">
+<li>download a copy of the remote resource</li>
+<li>use some importer to extract geographical information from the resource</li>
+<li>import the data in a postgis table named after the dataset</li>
+</ul>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">We need a common library to download resources honoring caches</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.geo.on_dataset_delete">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">on_dataset_delete</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.on_dataset_delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>On dataset delete, also delete geographical resources.</p>
+<ul class="simple">
+<li>Delete postgis tables containing the geo data</li>
+</ul>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">related things, like cached copies, should be deleted
+by some &#8220;core&#8221; plugin -&gt; use some kind of reference
+mechanism to &#8220;cascade&#8221; deletes.</p>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.geo.export_geo_dataset_shp">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">export_geo_dataset_shp</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.export_geo_dataset_shp" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export dataset to a Shapefile.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.geo.export_geo_dataset_geojson">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">export_geo_dataset_geojson</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.export_geo_dataset_geojson" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.geo.export_geo_dataset_csv">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">export_geo_dataset_csv</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.export_geo_dataset_csv" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export dataset to CSV, in a format that can be used for
+PostgreSQL COPY operations.</p>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.geo.import_dataset_find_shapefiles_DUMMY">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">import_dataset_find_shapefiles_DUMMY</tt><big>(</big><em>dataset_id</em>, <em>dataset_conf</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.import_dataset_find_shapefiles_DUMMY" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.geo.import_dataset_find_shapefiles">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">import_dataset_find_shapefiles</tt><big>(</big><em>dataset_id</em>, <em>dataset_conf</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.import_dataset_find_shapefiles" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="core.html"
+                        title="previous chapter">datacat.ext.core</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../utils/index.html"
+                        title="next chapter">datacat.utils</a></p>
+  <h3>This Page</h3>
+  <ul class="this-page-menu">
+    <li><a href="../../_sources/internals/ext/geo.txt"
+           rel="nofollow">Show Source</a></li>
+  </ul>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="../../genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="../../py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="right" >
+          <a href="../utils/index.html" title="datacat.utils"
+             >next</a> |</li>
+        <li class="right" >
+          <a href="core.html" title="datacat.ext.core"
+             >previous</a> |</li>
+        <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
+          <li><a href="../index.html" >Internals</a> &raquo;</li>
+          <li><a href="index.html" >datacat.ext</a> &raquo;</li> 
+      </ul>
+    </div>
+    <div class="footer">
+        &copy; Copyright 2014, Samuele Santi.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.2.3.
+    </div>
+  </body>
+</html>

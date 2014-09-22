@@ -26,7 +26,7 @@
     <link rel="top" title="Datacat 0.1a documentation" href="../../index.html" />
     <link rel="up" title="datacat.utils" href="index.html" />
     <link rel="next" title="datacat.utils.tempfile" href="tempfile.html" />
-    <link rel="prev" title="datacat.utils.files" href="files.html" /> 
+    <link rel="prev" title="datacat.utils.http" href="http.html" /> 
   </head>
   <body>
     <div class="related">
@@ -42,7 +42,7 @@
           <a href="tempfile.html" title="datacat.utils.tempfile"
              accesskey="N">next</a> |</li>
         <li class="right" >
-          <a href="files.html" title="datacat.utils.files"
+          <a href="http.html" title="datacat.utils.http"
              accesskey="P">previous</a> |</li>
         <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
           <li><a href="../index.html" >Internals</a> &raquo;</li>
@@ -104,7 +104,10 @@ class instance.</p>
 <dt id="datacat.utils.resource_access.get_resource_accessors">
 <tt class="descclassname">datacat.utils.resource_access.</tt><tt class="descname">get_resource_accessors</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.utils.resource_access.get_resource_accessors" title="Permalink to this definition">¶</a></dt>
 <dd><p>Get a dictionary mapping URL scheme names to accessor
-class for those urls.</p>
+class for URLs with that scheme.</p>
+<p>The map will be taken from the <tt class="docutils literal"><span class="pre">RESOURCE_ACCESSORS</span></tt>
+setting; accessors referenced by name will be replaced
+with the actual class.</p>
 </dd></dl>
 
 </div>
@@ -256,8 +259,8 @@ the url somewhere for later, as in default implementation.</p>
 </ul>
 
   <h4>Previous topic</h4>
-  <p class="topless"><a href="files.html"
-                        title="previous chapter">datacat.utils.files</a></p>
+  <p class="topless"><a href="http.html"
+                        title="previous chapter">datacat.utils.http</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="tempfile.html"
                         title="next chapter">datacat.utils.tempfile</a></p>
@@ -296,7 +299,7 @@ the url somewhere for later, as in default implementation.</p>
           <a href="tempfile.html" title="datacat.utils.tempfile"
              >next</a> |</li>
         <li class="right" >
-          <a href="files.html" title="datacat.utils.files"
+          <a href="http.html" title="datacat.utils.http"
              >previous</a> |</li>
         <li><a href="../../index.html">Datacat 0.1a documentation</a> &raquo;</li>
           <li><a href="../index.html" >Internals</a> &raquo;</li>

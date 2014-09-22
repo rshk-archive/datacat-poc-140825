@@ -24,58 +24,39 @@ generated metadata object.
 Key: ``resources``
 ==================
 
-**Handled by:** :py:data:`datacat.ext.core.core_plugin`, others.
+List of resouce items.
 
-Maps to a list of resources belonging to this dataset.
+Each item is either a string (representing directly the URL of the
+resource) or a dictionary. In the latter case, the resource URL MUST
+be provided via the "url" dictionary item.
 
-By default, links will be built to expose the resources as-is in the
-dataset metadata, but plugins might extend this by adding their own
-resources, ...
+URL opening is done via the :py:mod:`resource_access
+<datacat.utils.resource_access>` system.
 
+**Plugins behavior**
 
-Key: ``resources.type``
------------------------
+:py:mod:`Core Plugin <datacat.ext.core>`
 
-Indicates the type of linked resource.
-
-Right now, the only supported values are:
-
-+----------------+--------------------------------+-----------------+
-| Value          | Description                    | Required fields |
-+================+================================+=================+
-| ``internal``   | Link to an internally-stored   | ``id``          |
-|                | resource                       |                 |
-+----------------+--------------------------------+-----------------+
-| ``url``        | The resource can be found at   | ``url``         |
-|                | a given URL                    |                 |
-+----------------+--------------------------------+-----------------+
-
-..of course, again, a plugin can accept its own.
-
-
-Key: ``resources.id``
----------------------
-
-For resources with ``{"type": "internal"}``, the id of the
-internally-stored resource.
+    Unless ``resource.hidden == True``, links will be built to expose
+    resources for "as-is" download, in the dataset metadata.
 
 
 Key: ``resources.url``
 ----------------------
 
-For resources with ``{"type": "url"}``, the url at which the resource
-can be found.
+The resource URL, eg. ``http://www.example.com/myresource.json`` or
+``internal:///1234``.
+
+URLs will be opened via :py:func:`~datacat.utils.resource_access.open_resource`.
 
 
-Key: ``resources.exposed``
+Key: ``resources.hidden``
 --------------------------
 
-.. todo:: implement the ``resources.exposed`` dataset configuration functionality
+.. todo:: implement the ``resources.hidden`` dataset configuration functionality
 
-Defaults to ``True``. Indicates whether the "raw" resource should be
-exposed directly or not. Setting this to ``False`` is especially
-useful in cases in which the resource requires further cleanup before
-exposing through the API.
+If set to ``True``, the default plugin will leave this resource alone, and
+will not add a download link.
 
 
 Key: ``geo``
@@ -102,6 +83,8 @@ Accepted values:
 - ``find_shapefiles``: finds shapefiles inside a (possibiy recursive)
   structure of archives. Extracts all the encountered shapefiles along
   the path.
+
+.. todo:: Write more importers, with improved "autodiscovery" mechanism
 
 
 Key ``geo.default_projection``
