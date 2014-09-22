@@ -9,6 +9,15 @@ storing data, adding metadata, and generating "derivates" from the
 stored data.
 
 
+Project status
+==============
+
+**Travis CI build**
+
+.. image:: https://travis-ci.org/rshk/datacat-poc-140825.svg?branch=master
+    :target: https://travis-ci.org/rshk/datacat-poc-140825
+
+
 Project documentation
 =====================
 
