@@ -66,7 +66,7 @@ documentation can be found at:
 <div class="section" id="database">
 <h2><tt class="docutils literal"><span class="pre">DATABASE</span></tt><a class="headerlink" href="#database" title="Permalink to this headline">¶</a></h2>
 <p>PostgreSQL database configuration:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">DATABASE</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s">&#39;host&#39;</span><span class="p">:</span> <span class="s">&#39;localhost&#39;</span><span class="p">,</span>
     <span class="s">&#39;port&#39;</span><span class="p">:</span> <span class="mi">5432</span><span class="p">,</span>
     <span class="s">&#39;database&#39;</span><span class="p">:</span> <span class="s">&#39;datacat-db&#39;</span><span class="p">,</span>
@@ -79,12 +79,52 @@ documentation can be found at:
 <div class="section" id="plugins">
 <h2><tt class="docutils literal"><span class="pre">PLUGINS</span></tt><a class="headerlink" href="#plugins" title="Permalink to this headline">¶</a></h2>
 <p>List of enabled plugins.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">PLUGINS</span> <span class="o">=</span> <span class="p">[</span>
     <span class="s">&#39;datacat.ext.eggs:EggsPlugin&#39;</span><span class="p">,</span>
     <span class="s">&#39;datacat.ext.spam:SpamPlugin&#39;</span><span class="p">,</span>
     <span class="s">&#39;datacat.ext.bacon:BaconPlugin&#39;</span><span class="p">,</span>
 <span class="p">]</span>
 </pre></div>
+</div>
+</div>
+<div class="section" id="resource-accessors">
+<h2><tt class="docutils literal"><span class="pre">RESOURCE_ACCESSORS</span></tt><a class="headerlink" href="#resource-accessors" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">RESOURCE_ACCESSORS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s">&#39;http&#39;</span><span class="p">:</span> <span class="s">&#39;datacat.utils.resource_access:HttpResourceAccessor&#39;</span><span class="p">,</span>
+    <span class="s">&#39;https&#39;</span><span class="p">:</span> <span class="s">&#39;datacat.utils.resource_access:HttpResourceAccessor&#39;</span><span class="p">,</span>
+    <span class="s">&#39;internal&#39;</span><span class="p">:</span> <span class="s">&#39;datacat.utils.resource_access:InternalResourceAccessor&#39;</span><span class="p">,</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="celery-configuration">
+<h2>Celery configuration<a class="headerlink" href="#celery-configuration" title="Permalink to this headline">¶</a></h2>
+<p>See <a class="reference external" href="http://docs.celeryproject.org/en/latest/configuration.html">the Celery Project documentation</a> for
+more information about accepted configuration options.</p>
+<div class="section" id="celery-broker-url">
+<h3><tt class="docutils literal"><span class="pre">CELERY_BROKER_URL</span></tt><a class="headerlink" href="#celery-broker-url" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">CELERY_BROKER_URL</span> <span class="o">=</span> <span class="s">&#39;redis://localhost:6379/0&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="celery-result-backend">
+<h3><tt class="docutils literal"><span class="pre">CELERY_RESULT_BACKEND</span></tt><a class="headerlink" href="#celery-result-backend" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">CELERY_RESULT_BACKEND</span> <span class="o">=</span> <span class="s">&#39;redis://localhost:6379/0&#39;</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="celery-accept-content">
+<h3><tt class="docutils literal"><span class="pre">CELERY_ACCEPT_CONTENT</span></tt><a class="headerlink" href="#celery-accept-content" title="Permalink to this headline">¶</a></h3>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p>The <tt class="docutils literal"><span class="pre">pickle</span></tt> serialization method has been removed by default,
+as it is greatly insecure.</p>
+<p class="last">The msgpack and yaml serialization require the <tt class="docutils literal"><span class="pre">msgpack-python</span></tt>
+and <tt class="docutils literal"><span class="pre">yaml</span></tt> packages to be installed, respectively.</p>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">CELERY_ACCEPT_CONTENT</span> <span class="o">=</span> <span class="p">[</span><span class="s">&#39;json&#39;</span><span class="p">,</span> <span class="s">&#39;msgpack&#39;</span><span class="p">,</span> <span class="s">&#39;yaml&#39;</span><span class="p">]</span>
+</pre></div>
+</div>
 </div>
 </div>
 </div>
@@ -100,6 +140,13 @@ documentation can be found at:
 <li><a class="reference internal" href="#">Settings</a><ul>
 <li><a class="reference internal" href="#database"><tt class="docutils literal"><span class="pre">DATABASE</span></tt></a></li>
 <li><a class="reference internal" href="#plugins"><tt class="docutils literal"><span class="pre">PLUGINS</span></tt></a></li>
+<li><a class="reference internal" href="#resource-accessors"><tt class="docutils literal"><span class="pre">RESOURCE_ACCESSORS</span></tt></a></li>
+<li><a class="reference internal" href="#celery-configuration">Celery configuration</a><ul>
+<li><a class="reference internal" href="#celery-broker-url"><tt class="docutils literal"><span class="pre">CELERY_BROKER_URL</span></tt></a></li>
+<li><a class="reference internal" href="#celery-result-backend"><tt class="docutils literal"><span class="pre">CELERY_RESULT_BACKEND</span></tt></a></li>
+<li><a class="reference internal" href="#celery-accept-content"><tt class="docutils literal"><span class="pre">CELERY_ACCEPT_CONTENT</span></tt></a></li>
+</ul>
+</li>
 </ul>
 </li>
 </ul>

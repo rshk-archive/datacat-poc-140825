@@ -25,7 +25,7 @@
     <script type="text/javascript" src="../../_static/doctools.js"></script>
     <link rel="top" title="Datacat 0.1a documentation" href="../../index.html" />
     <link rel="up" title="datacat.db" href="index.html" />
-    <link rel="next" title="datacat.utils" href="../utils/index.html" />
+    <link rel="next" title="datacat.ext" href="../ext/index.html" />
     <link rel="prev" title="datacat.db" href="index.html" /> 
   </head>
   <body>
@@ -39,7 +39,7 @@
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../utils/index.html" title="datacat.utils"
+          <a href="../ext/index.html" title="datacat.ext"
              accesskey="N">next</a> |</li>
         <li class="right" >
           <a href="index.html" title="datacat.db"
@@ -57,6 +57,16 @@
             
   <div class="section" id="module-datacat.db.querybuilder">
 <span id="datacat-db-querybuilder"></span><h1>datacat.db.querybuilder<a class="headerlink" href="#module-datacat.db.querybuilder" title="Permalink to this headline">¶</a></h1>
+<p>Helper functions to build SQL queries.</p>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>Functions shipped in this module are <strong>not</strong> safe against
+SQL injection, arguments <strong>must not</strong> directly come from user
+input or <strong>must</strong> be sanitized fist.</p>
+<p class="last">This is not going to be changed, as these functions are meant
+to be called with hard-coded arguments, that won&#8217;t thus
+require any validation.</p>
+</div>
 <dl class="function">
 <dt id="datacat.db.querybuilder.select_pk">
 <tt class="descclassname">datacat.db.querybuilder.</tt><tt class="descname">select_pk</tt><big>(</big><em>table</em>, <em>table_key='id'</em>, <em>fields=None</em><big>)</big><a class="headerlink" href="#datacat.db.querybuilder.select_pk" title="Permalink to this definition">¶</a></dt>
@@ -83,6 +93,41 @@ the <tt class="docutils literal"><span class="pre">WHERE</span></tt> clause.</li
 <span class="go">&#39;SELECT &quot;foo&quot;, &quot;bar&quot; FROM mytable WHERE &quot;id&quot;=%(id)s&#39;</span>
 </pre></div>
 </div>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.db.querybuilder.select_paged">
+<tt class="descclassname">datacat.db.querybuilder.</tt><tt class="descname">select_paged</tt><big>(</big><em>table</em>, <em>fields=None</em>, <em>order_by='id ASC'</em>, <em>offset=0</em>, <em>limit=10</em><big>)</big><a class="headerlink" href="#datacat.db.querybuilder.select_paged" title="Permalink to this definition">¶</a></dt>
+<dd><p>Build a SQL query for selecting a (paged) amount of objects
+from a table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>table</strong> &#8211; Name of the table to operate on.</li>
+<li><strong>fields</strong> &#8211; <p>List of field names to select (string or iterable).</p>
+<p><tt class="docutils literal"><span class="pre">None</span></tt> (default) means &#8220;all&#8221;.</p>
+</li>
+<li><strong>order_by</strong> &#8211; <p>ORDER BY clause to be used to order the returned items.
+The SQL standard (and PostgreSQL itself) requires this to be
+set, in order to get results in a consistent order.</p>
+<p>Defaults to <tt class="docutils literal"><span class="pre">id</span> <span class="pre">ASC</span></tt></p>
+</li>
+<li><strong>offset</strong> &#8211; <p>The query OFFSET (position of the first returned item).</p>
+<p>Defaults to 0.</p>
+</li>
+<li><strong>limit</strong> &#8211; <p>The query LIMIT (maximum amount of returned items).</p>
+<p>Defaults to 10.</p>
+</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">The query, as a string</p>
+</td>
+</tr>
+</tbody>
+</table>
 </dd></dl>
 
 <dl class="function">
@@ -183,8 +228,8 @@ the <tt class="docutils literal"><span class="pre">WHERE</span></tt> clause.</li
   <p class="topless"><a href="index.html"
                         title="previous chapter">datacat.db</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../utils/index.html"
-                        title="next chapter">datacat.utils</a></p>
+  <p class="topless"><a href="../ext/index.html"
+                        title="next chapter">datacat.ext</a></p>
   <h3>This Page</h3>
   <ul class="this-page-menu">
     <li><a href="../../_sources/internals/db/querybuilder.txt"
@@ -217,7 +262,7 @@ the <tt class="docutils literal"><span class="pre">WHERE</span></tt> clause.</li
           <a href="../../py-modindex.html" title="Python Module Index"
              >modules</a> |</li>
         <li class="right" >
-          <a href="../utils/index.html" title="datacat.utils"
+          <a href="../ext/index.html" title="datacat.ext"
              >next</a> |</li>
         <li class="right" >
           <a href="index.html" title="datacat.db"

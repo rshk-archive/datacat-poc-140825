@@ -62,37 +62,75 @@
 <li>Imports resources (from an URL or internal resource) into a PostGIS table</li>
 <li>Exports geographical data into various formats</li>
 </ul>
+<dl class="data">
+<dt id="datacat.ext.geo.geo_plugin">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">geo_plugin</tt><em class="property"> = datacat.ext.geo.GeoPlugin('datacat.ext.geo')</em><a class="headerlink" href="#datacat.ext.geo.geo_plugin" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<div class="section" id="plugin-base-class">
+<h2>Plugin base class<a class="headerlink" href="#plugin-base-class" title="Permalink to this headline">¶</a></h2>
 <dl class="class">
 <dt id="datacat.ext.geo.GeoPlugin">
 <em class="property">class </em><tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">GeoPlugin</tt><big>(</big><em>import_name</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.GeoPlugin" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
 <dt id="datacat.ext.geo.GeoPlugin.install">
 <tt class="descname">install</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.geo.GeoPlugin.install" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Create required tables.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">write this function</p>
+</div>
+</dd></dl>
 
 <dl class="method">
 <dt id="datacat.ext.geo.GeoPlugin.uninstall">
 <tt class="descname">uninstall</tt><big>(</big><big>)</big><a class="headerlink" href="#datacat.ext.geo.GeoPlugin.uninstall" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Remove all the previously created tables.</p>
+<div class="admonition-todo admonition" id="index-1">
+<p class="first admonition-title">Todo</p>
+<p class="last">write this function</p>
+</div>
+</dd></dl>
 
 </dd></dl>
 
+</div>
+<div class="section" id="hooks">
+<h2>Hooks<a class="headerlink" href="#hooks" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="datacat.ext.geo.make_dataset_metadata">
 <tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">make_dataset_metadata</tt><big>(</big><em>dataset_id</em>, <em>config</em>, <em>metadata</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.make_dataset_metadata" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Hook:</th><td class="field-body"><tt class="docutils literal"><span class="pre">make_dataset_metadata</span></tt></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
 <dl class="function">
 <dt id="datacat.ext.geo.on_dataset_create_update">
 <tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">on_dataset_create_update</tt><big>(</big><em>dataset_id</em>, <em>dataset_conf</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.on_dataset_create_update" title="Permalink to this definition">¶</a></dt>
 <dd><p>On dataset create/update, import geographical resources.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Hook:</th><td class="field-body"><tt class="docutils literal"><span class="pre">dataset_create</span></tt></td>
+</tr>
+<tr class="field-even field"><th class="field-name">Hook:</th><td class="field-body"><tt class="docutils literal"><span class="pre">dataset_update</span></tt></td>
+</tr>
+</tbody>
+</table>
 <p>This means:</p>
 <ul class="simple">
 <li>download a copy of the remote resource</li>
 <li>use some importer to extract geographical information from the resource</li>
 <li>import the data in a postgis table named after the dataset</li>
 </ul>
-<div class="admonition-todo admonition" id="index-0">
+<div class="admonition-todo admonition" id="index-2">
 <p class="first admonition-title">Todo</p>
 <p class="last">We need a common library to download resources honoring caches</p>
 </div>
@@ -102,10 +140,18 @@
 <dt id="datacat.ext.geo.on_dataset_delete">
 <tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">on_dataset_delete</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.on_dataset_delete" title="Permalink to this definition">¶</a></dt>
 <dd><p>On dataset delete, also delete geographical resources.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Hook:</th><td class="field-body"><tt class="docutils literal"><span class="pre">dataset_delete</span></tt></td>
+</tr>
+</tbody>
+</table>
 <ul class="simple">
 <li>Delete postgis tables containing the geo data</li>
 </ul>
-<div class="admonition-todo admonition" id="index-1">
+<div class="admonition-todo admonition" id="index-3">
 <p class="first admonition-title">Todo</p>
 <p class="last">related things, like cached copies, should be deleted
 by some &#8220;core&#8221; plugin -&gt; use some kind of reference
@@ -113,34 +159,142 @@ mechanism to &#8220;cascade&#8221; deletes.</p>
 </div>
 </dd></dl>
 
+</div>
+<div class="section" id="views">
+<h2>Views<a class="headerlink" href="#views" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="datacat.ext.geo.export_geo_dataset_shp">
 <tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">export_geo_dataset_shp</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.export_geo_dataset_shp" title="Permalink to this definition">¶</a></dt>
-<dd><p>Export dataset to a Shapefile.</p>
+<dd><p>Export dataset to <a class="reference external" href="http://en.wikipedia.org/wiki/Shapefile">Esri Shapefile</a> format.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">HTTP URL:</th><td class="field-body"><tt class="docutils literal"><span class="pre">/data/&lt;int:dataset_id&gt;/export/shp</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet</p>
+</div>
 </dd></dl>
 
 <dl class="function">
 <dt id="datacat.ext.geo.export_geo_dataset_geojson">
 <tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">export_geo_dataset_geojson</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.export_geo_dataset_geojson" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Export dataset to <a class="reference external" href="http://geojson.org/">GeoJSON</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">HTTP URL:</th><td class="field-body"><tt class="docutils literal"><span class="pre">/data/&lt;int:dataset_id&gt;/export/geojson</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet</p>
+</div>
+</dd></dl>
 
 <dl class="function">
 <dt id="datacat.ext.geo.export_geo_dataset_csv">
 <tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">export_geo_dataset_csv</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.export_geo_dataset_csv" title="Permalink to this definition">¶</a></dt>
-<dd><p>Export dataset to CSV, in a format that can be used for
-PostgreSQL COPY operations.</p>
+<dd><p>Export dataset to CSV, in a format suitable for use with
+<a class="reference external" href="http://www.postgresql.org/docs/9.3/static/sql-copy.html">PostgreSQL COPY</a>
+operations.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">HTTP URL:</th><td class="field-body"><tt class="docutils literal"><span class="pre">/data/&lt;int:dataset_id&gt;/export/csv</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet</p>
+</div>
 </dd></dl>
 
 <dl class="function">
-<dt id="datacat.ext.geo.import_dataset_find_shapefiles_DUMMY">
-<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">import_dataset_find_shapefiles_DUMMY</tt><big>(</big><em>dataset_id</em>, <em>dataset_conf</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.import_dataset_find_shapefiles_DUMMY" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dt id="datacat.ext.geo.export_geo_dataset_gml">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">export_geo_dataset_gml</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.export_geo_dataset_gml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export dataset to <a class="reference external" href="http://www.opengeospatial.org/standards/gml">Geography Markup Language</a>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">HTTP URL:</th><td class="field-body"><tt class="docutils literal"><span class="pre">/data/&lt;int:dataset_id&gt;/export/gml</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet</p>
+</div>
+</dd></dl>
 
+<dl class="function">
+<dt id="datacat.ext.geo.export_geo_dataset_kml">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">export_geo_dataset_kml</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.export_geo_dataset_kml" title="Permalink to this definition">¶</a></dt>
+<dd><p>Export dataset to <a class="reference external" href="https://developers.google.com/kml/">Keyhole Markup Language</a>, mostly for displaying
+on Google Earth.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">HTTP URL:</th><td class="field-body"><tt class="docutils literal"><span class="pre">/data/&lt;int:dataset_id&gt;/export/kml</span></tt></td>
+</tr>
+</tbody>
+</table>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">Not implemented yet</p>
+</div>
+</dd></dl>
+
+</div>
+<div class="section" id="celery-tasks">
+<h2>Celery tasks<a class="headerlink" href="#celery-tasks" title="Permalink to this headline">¶</a></h2>
+<dl class="function">
+<dt id="datacat.ext.geo.import_geo_dataset">
+<tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">import_geo_dataset</tt><big>(</big><em>dataset_id</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.import_geo_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>Task to import geographical resources from a dataset
+into a PostGIS table.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>dataset_id</strong> &#8211; Id of the dataset to import</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</div>
+<div class="section" id="utilities">
+<h2>Utilities<a class="headerlink" href="#utilities" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="datacat.ext.geo.import_dataset_find_shapefiles">
 <tt class="descclassname">datacat.ext.geo.</tt><tt class="descname">import_dataset_find_shapefiles</tt><big>(</big><em>dataset_id</em>, <em>dataset_conf</em><big>)</big><a class="headerlink" href="#datacat.ext.geo.import_dataset_find_shapefiles" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<dd><p>Find all the Shapefiles from archives listed as dataset resources.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>dataset_id</strong> &#8211; The dataset id</li>
+<li><strong>dataset_conf</strong> &#8211; The dataset configuration</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
 
+</div>
 </div>
 
 
@@ -149,6 +303,18 @@ PostgreSQL COPY operations.</p>
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">datacat.ext.geo</a><ul>
+<li><a class="reference internal" href="#plugin-base-class">Plugin base class</a></li>
+<li><a class="reference internal" href="#hooks">Hooks</a></li>
+<li><a class="reference internal" href="#views">Views</a></li>
+<li><a class="reference internal" href="#celery-tasks">Celery tasks</a></li>
+<li><a class="reference internal" href="#utilities">Utilities</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="core.html"
                         title="previous chapter">datacat.ext.core</a></p>

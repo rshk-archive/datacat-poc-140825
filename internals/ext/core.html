@@ -55,18 +55,106 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="module-datacat.ext.core">
-<span id="datacat-ext-core"></span><h1>datacat.ext.core<a class="headerlink" href="#module-datacat.ext.core" title="Permalink to this headline">¶</a></h1>
-<dl class="function">
-<dt id="datacat.ext.core.make_dataset_metadata">
-<tt class="descclassname">datacat.ext.core.</tt><tt class="descname">make_dataset_metadata</tt><big>(</big><em>dataset_id</em>, <em>config</em>, <em>metadata</em><big>)</big><a class="headerlink" href="#datacat.ext.core.make_dataset_metadata" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
-
+  <div class="section" id="datacat-ext-core">
+<h1>datacat.ext.core<a class="headerlink" href="#datacat-ext-core" title="Permalink to this headline">¶</a></h1>
 <dl class="data">
 <dt id="datacat.ext.core.core_plugin">
-<tt class="descclassname">datacat.ext.core.</tt><tt class="descname">core_plugin</tt><a class="headerlink" href="#datacat.ext.core.core_plugin" title="Permalink to this definition">¶</a></dt>
-<dd></dd></dl>
+<tt class="descclassname">datacat.ext.core.</tt><tt class="descname">core_plugin</tt><em class="property"> = datacat.ext.base.Plugin('datacat.ext.core')</em><a class="headerlink" href="#datacat.ext.core.core_plugin" title="Permalink to this definition">¶</a></dt>
+<dd><p>The core plugin, providing most of the &#8220;standard&#8221; functionality.
+Having the core functionality in a plugins allows users to easily
+extend and replace it to fit any custom needs.</p>
+</dd></dl>
 
+<span class="target" id="module-datacat.ext.core"></span><dl class="function">
+<dt id="datacat.ext.core.make_dataset_metadata">
+<tt class="descclassname">datacat.ext.core.</tt><tt class="descname">make_dataset_metadata</tt><big>(</big><em>dataset_id</em>, <em>config</em>, <em>metadata</em><big>)</big><a class="headerlink" href="#datacat.ext.core.make_dataset_metadata" title="Permalink to this definition">¶</a></dt>
+<dd><table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Hook:</th><td class="field-body">make_dataset_metadata</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.core.get_dataset_index">
+<tt class="descclassname">datacat.ext.core.</tt><tt class="descname">get_dataset_index</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#datacat.ext.core.get_dataset_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>API view returning a (paged) list of datasets.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">HTTP url:</th><td class="field-body"><tt class="docutils literal"><span class="pre">/data/</span></tt></td>
+</tr>
+<tr class="field-even field"><th class="field-name">HTTP methods:</th><td class="field-body"><tt class="docutils literal"><span class="pre">GET</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p>The view returns a list of dictionaries representing dataset
+objects.  The schema is entirely up to the enabled plugins; the
+core implementation only guarantees that the <tt class="docutils literal"><span class="pre">id</span></tt> field is set
+to the correct dataset id.</p>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span class="nf">GET</span> <span class="nn">/api/1/data/</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-type</span><span class="o">:</span> <span class="l">application/json</span>
+<span class="na">Link</span><span class="o">:</span> <span class="l">?start=10&amp;size=10; rel=next, ?start=50&amp;size=10; rel=last</span>
+<span class="na">X-page-total</span><span class="o">:</span> <span class="l">60</span>
+<span class="na">X-page-start</span><span class="o">:</span> <span class="l">0</span>
+<span class="na">X-page-size</span><span class="o">:</span> <span class="l">10</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[{</span><span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="mi">2</span><span class="p">},</span> <span class="p">{</span><span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="mi">3</span><span class="p">},</span> <span class="o">...</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="mi">10</span><span class="p">}]</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="datacat.ext.core.get_dataset">
+<tt class="descclassname">datacat.ext.core.</tt><tt class="descname">get_dataset</tt><big>(</big><em>*a</em>, <em>**kw</em><big>)</big><a class="headerlink" href="#datacat.ext.core.get_dataset" title="Permalink to this definition">¶</a></dt>
+<dd><p>API view returning information for a single dataset.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">HTTP url:</th><td class="field-body"><tt class="docutils literal"><span class="pre">/data/&lt;dataset_id&gt;</span></tt></td>
+</tr>
+<tr class="field-even field"><th class="field-name">HTTP methods:</th><td class="field-body"><tt class="docutils literal"><span class="pre">GET</span></tt></td>
+</tr>
+</tbody>
+</table>
+<p><strong>Example request:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span class="nf">GET</span> <span class="nn">/api/1/data/1</span> <span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span>
+</pre></div>
+</div>
+<p><strong>Example response:</strong></p>
+<div class="highlight-http"><div class="highlight"><pre><span class="kr">HTTP</span><span class="o">/</span><span class="m">1.0</span> <span class="m">200</span> <span class="ne">OK</span>
+<span class="na">Content-type</span><span class="o">:</span> <span class="l">application/json</span>
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;id&quot;</span><span class="p">:</span> <span class="mi">1</span><span class="p">,</span> <span class="o">...</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="section" id="celery-tasks">
+<h2>Celery tasks<a class="headerlink" href="#celery-tasks" title="Permalink to this headline">¶</a></h2>
+<dl class="data">
+<dt id="datacat.ext.core.dummy_task">
+<tt class="descclassname">datacat.ext.core.</tt><tt class="descname">dummy_task</tt><a class="headerlink" href="#datacat.ext.core.dummy_task" title="Permalink to this definition">¶</a></dt>
+<dd><p>No-op Celery task, used for testing purposes.</p>
+<div class="admonition-todo admonition" id="index-0">
+<p class="first admonition-title">Todo</p>
+<p class="last">Move all the testing stuff to the testing plugin</p>
+</div>
+</dd></dl>
+
+</div>
 </div>
 
 
@@ -75,6 +163,14 @@
       </div>
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
+  <h3><a href="../../index.html">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">datacat.ext.core</a><ul>
+<li><a class="reference internal" href="#celery-tasks">Celery tasks</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="base.html"
                         title="previous chapter">datacat.ext.base</a></p>
