@@ -62,16 +62,20 @@ dataset metadata + data should be built.</p>
 to generate the final metadata to be exposed.</p>
 <div class="admonition note">
 <p class="first admonition-title">Note</p>
-<p class="last">This page describes the configuration values used by plugins
+<p>This page describes the configuration values used by plugins
 shipped with the core; other plugins may use their
 conventions, proven that they do not conflict with the
 currently-enabled plugins.</p>
+<p class="last">The datacat core doesn&#8217;t enforce any schema on this configuration,
+everything is up to the enabled plugins.</p>
 </div>
 <div class="section" id="key-metadata">
 <h2>Key: <tt class="docutils literal"><span class="pre">metadata</span></tt><a class="headerlink" href="#key-metadata" title="Permalink to this headline">¶</a></h2>
-<p><strong>Handled by:</strong> <a class="reference internal" href="ext/core.html#datacat.ext.core.core_plugin" title="datacat.ext.core.core_plugin"><tt class="xref py py-data docutils literal"><span class="pre">datacat.ext.core.core_plugin</span></tt></a></p>
-<p>Maps to a dictionary of metadata attributes to be merged as-is in the
-generated metadata object.</p>
+<p><strong>Plugins behavior</strong></p>
+<p><a class="reference internal" href="ext/core.html#module-datacat.ext.core" title="datacat.ext.core"><tt class="xref py py-mod docutils literal"><span class="pre">Core</span> <span class="pre">Plugin</span></tt></a></p>
+<blockquote>
+<div>Takes values from the <tt class="docutils literal"><span class="pre">metadata</span></tt> object and expand them directly
+in the dataset metadata.</div></blockquote>
 </div>
 <div class="section" id="key-resources">
 <h2>Key: <tt class="docutils literal"><span class="pre">resources</span></tt><a class="headerlink" href="#key-resources" title="Permalink to this headline">¶</a></h2>
@@ -85,6 +89,12 @@ be provided via the &#8220;url&#8221; dictionary item.</p>
 <blockquote>
 <div>Unless <tt class="docutils literal"><span class="pre">resource.hidden</span> <span class="pre">==</span> <span class="pre">True</span></tt>, links will be built to expose
 resources for &#8220;as-is&#8221; download, in the dataset metadata.</div></blockquote>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">&#8220;hidden&#8221; does not mean &#8220;private&#8221;: although the link
+will not be advertised, the resource is still
+accessible by directly visiting the URL.</p>
+</div>
 <div class="section" id="key-resources-url">
 <h3>Key: <tt class="docutils literal"><span class="pre">resources.url</span></tt><a class="headerlink" href="#key-resources-url" title="Permalink to this headline">¶</a></h3>
 <p>The resource URL, eg. <tt class="docutils literal"><span class="pre">http://www.example.com/myresource.json</span></tt> or
@@ -104,10 +114,23 @@ will not add a download link.</p>
 <div class="section" id="key-geo">
 <h2>Key: <tt class="docutils literal"><span class="pre">geo</span></tt><a class="headerlink" href="#key-geo" title="Permalink to this headline">¶</a></h2>
 <p>Hold configuration for extraction of geographical data from a dataset.</p>
+<p><strong>Plugins behavior</strong></p>
+<p><a class="reference internal" href="ext/geo.html#module-datacat.ext.geo" title="datacat.ext.geo"><tt class="xref py py-mod docutils literal"><span class="pre">Geo</span> <span class="pre">Plugin</span></tt></a></p>
+<blockquote>
+<div><ul class="simple">
+<li>on metadata creation, add own resource links (conversions
+to other formats)</li>
+<li>expose API endpoints to query the geographical data</li>
+<li>on dataset create/update import datasets to PostGIS table
+(and remove those tables on delete)</li>
+<li>render tiles via mapnik</li>
+</ul>
+</div></blockquote>
 <div class="section" id="key-geo-enabled">
 <h3>Key: <tt class="docutils literal"><span class="pre">geo.enabled</span></tt><a class="headerlink" href="#key-geo-enabled" title="Permalink to this headline">¶</a></h3>
 <p>If set to <tt class="docutils literal"><span class="pre">True</span></tt>, indicates that this dataset should be treated as a
-geographical dataset by the Geo plugin.</p>
+geographical dataset by the Geo plugin. Otherwise, it will simply be
+ignored.</p>
 </div>
 <div class="section" id="key-geo-importer">
 <h3>Key: <tt class="docutils literal"><span class="pre">geo.importer</span></tt><a class="headerlink" href="#key-geo-importer" title="Permalink to this headline">¶</a></h3>
@@ -147,6 +170,12 @@ on the local filesystem!</p>
 indicating the projection SRID directly.</p>
 </div>
 </div>
+<div class="section" id="key-geo-override-projection">
+<h3>Key: <tt class="docutils literal"><span class="pre">geo.override_projection</span></tt><a class="headerlink" href="#key-geo-override-projection" title="Permalink to this headline">¶</a></h3>
+<p>Force use this projection, even if one was specified in the source.</p>
+<p>See the <a class="reference external" href="#key-geo-default-projection">geo.default_projection</a>
+documentation for more info about accepted values.</p>
+</div>
 </div>
 </div>
 
@@ -169,6 +198,7 @@ indicating the projection SRID directly.</p>
 <li><a class="reference internal" href="#key-geo-enabled">Key: <tt class="docutils literal"><span class="pre">geo.enabled</span></tt></a></li>
 <li><a class="reference internal" href="#key-geo-importer">Key: <tt class="docutils literal"><span class="pre">geo.importer</span></tt></a></li>
 <li><a class="reference internal" href="#key-geo-default-projection">Key <tt class="docutils literal"><span class="pre">geo.default_projection</span></tt></a></li>
+<li><a class="reference internal" href="#key-geo-override-projection">Key: <tt class="docutils literal"><span class="pre">geo.override_projection</span></tt></a></li>
 </ul>
 </li>
 </ul>
