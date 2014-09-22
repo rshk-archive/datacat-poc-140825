@@ -26,6 +26,12 @@ PLUGINS = [
     'datacat.ext.geo:geo_plugin',
 ]
 
+RESOURCE_ACCESSORS = {
+    'http': 'datacat.utils.resource_access:HttpResourceAccessor',
+    'https': 'datacat.utils.resource_access:HttpResourceAccessor',
+    'internal': 'datacat.utils.resource_access:InternalResourceAccessor',
+}
+
 
 # ============================================================
 #     Celery configuration

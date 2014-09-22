@@ -26,12 +26,14 @@ import abc
 import cgi
 import datetime
 
+from flask import current_app
 from werkzeug.utils import cached_property
 import requests
 
 from datacat.db import db
 from datacat.utils.const import HTTP_DATE_FORMAT
 from datacat.utils.files import file_copy
+from datacat.utils.plugin_loading import import_object
 
 
 def open_resource(url):
@@ -55,13 +57,20 @@ def open_resource(url):
 def get_resource_accessors():
     """
     Get a dictionary mapping URL scheme names to accessor
-    class for those urls.
+    class for URLs with that scheme.
+
+    The map will be taken from the ``RESOURCE_ACCESSORS``
+    setting; accessors referenced by name will be replaced
+    with the actual class.
     """
-    return {
-        'http': HttpResourceAccessor,
-        'https': HttpResourceAccessor,
-        'internal': InternalResourceAccessor,
-    }
+
+    accessors = current_app.config['RESOURCE_ACCESSORS']
+    _accessors = {}
+    for key, val in accessors.iteritems():
+        if isinstance(val, basestring):
+            val = import_object(val)
+        _accessors[key] = val
+    return _accessors
 
 
 class ResourceAccessError(Exception):
