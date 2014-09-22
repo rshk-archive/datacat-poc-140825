@@ -8,13 +8,12 @@ Datacat Geographical Plugin
 import os
 import re
 
-from flask import url_for
 from werkzeug.exceptions import NotFound
 
-from datacat.db import get_db, db, admin_db
+from datacat.db import db, admin_db
 from datacat.ext.base import Plugin
-from datacat.web.utils import json_view
 from datacat.utils.data_extraction import find_shapefiles, shp2pgsql
+from datacat.utils.resource_access import open_resource
 from datacat.utils.tempfile import TemporaryDir
 
 
@@ -139,19 +138,9 @@ def _random_file_name(ext=None):
 
 
 def _copy_resource_to_file(resource, filename):
-    if resource['type'] == 'internal':
-        # Get the resource contents by id
-        # todo: copy files in a chunked mode
-        data = _get_internal_resource_data(resource['id'])
-        with open(filename, 'wb') as fp:
-            fp.write(data)
-        return
-
-    if resource['type'] == 'url':
-        raise NotImplementedError('')
-
-    raise ValueError("Unsupported resource type: {0!r}"
-                     .format(resource['type']))
+    res_object = open_resource(resource['url'])
+    with open(filename, 'wb') as fp:
+        res_object.save_to_file(fp)
 
 
 def _get_internal_resource_data(resource_id):
@@ -203,6 +192,9 @@ def import_dataset_find_shapefiles(dataset_id, dataset_conf):
         for resource in dataset_conf['resources']:
             # We assume the file is a zip, but we should double-check that!
             dest_file = os.path.join(tempdir, _random_file_name('zip'))
+
+            if isinstance(resource, basestring):
+                resource = {'url': resource}
 
             # Copy the resource to disk
             _copy_resource_to_file(resource, dest_file)

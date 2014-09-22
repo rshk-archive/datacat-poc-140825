@@ -35,7 +35,7 @@ def test_geo_import_shapefile(configured_app, data_dir):
             'title': 'Some Trentino roads from OpenStreetMap',
         },
         'resources': [
-            {'type': 'internal', 'id': resource_id},
+            'internal:///{0}'.format(resource_id),
         ],
         'geo': {
             'enabled': True,
