@@ -3,8 +3,8 @@ import re
 import urlparse
 
 
-def test_core_plugin_metadata_resources(configured_app):
-    apptc = configured_app.test_client()
+def test_core_plugin_metadata_resources(configured_app_ctx):
+    apptc = configured_app_ctx.test_client()
 
     # First we want to create two resources and a dataset linking to
     # those two resources
@@ -30,8 +30,7 @@ def test_core_plugin_metadata_resources(configured_app):
         match = re.match('/api/1/admin/resource/([0-9]+)', path)
         resource_id = int(match.group(1))
         dataset_conf['resources'].append({
-            'type': 'internal',
-            'id': resource_id,
+            'url': 'internal:///{0}'.format(resource_id),
         })
 
     resp = apptc.post('/api/1/admin/dataset/',
@@ -57,24 +56,18 @@ def test_core_plugin_metadata_resources(configured_app):
     assert data['resources'][0]['url'].startswith('http://')
 
     assert urlparse.urlparse(data['resources'][0]['url']).path == \
-        '/api/1/data/{0}/resource/0'.format(dataset_id)
+        '/api/1/data/resource/1'
     assert urlparse.urlparse(data['resources'][1]['url']).path == \
-        '/api/1/data/{0}/resource/1'.format(dataset_id)
+        '/api/1/data/resource/2'
 
     # Try getting the metadata and check
     path1 = urlparse.urlparse(data['resources'][0]['url']).path
     resp = apptc.get(path1)
-    assert resp.status_code == 302
-    path1_loc = urlparse.urlparse(resp.headers['Location']).path
-    resp = apptc.get(path1_loc)
     assert resp.status_code == 200
     assert resp.headers['Content-type'] == 'text/plain'
     assert resp.data == 'This is some plain text'
 
     path2 = urlparse.urlparse(data['resources'][1]['url']).path
     resp = apptc.get(path2)
-    assert resp.status_code == 302
-    path2_loc = urlparse.urlparse(resp.headers['Location']).path
-    resp = apptc.get(path2_loc)
     assert resp.headers['Content-type'] == 'application/json'
     assert resp.data == '{"This": "is", "some": "JSON"}'

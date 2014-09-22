@@ -8,8 +8,8 @@ import pytest
 from datacat.utils.resource_access import open_resource, ResourceAccessFailure
 
 
-def test_open_internal_resource(configured_app):
-    apptc = configured_app.test_client()
+def test_open_internal_resource(configured_app_ctx):
+    apptc = configured_app_ctx.test_client()
     DATA_PAYLOAD = '{"Hello": "World"}'
 
     # -------------------- Create a resource --------------------
@@ -25,15 +25,14 @@ def test_open_internal_resource(configured_app):
 
     # -------------------- Now try opening it --------------------
 
-    with configured_app.app_context():
-        resource = open_resource('internal:///{0}'.format(resource_id))
-        assert resource.open_resource().read() == DATA_PAYLOAD
-        assert isinstance(resource.last_modified, datetime.datetime)
-        assert resource.etag is None  # Not implemented yet..
-        assert resource.content_type == 'application/json'
+    resource = open_resource('internal:///{0}'.format(resource_id))
+    assert resource.open_resource().read() == DATA_PAYLOAD
+    assert isinstance(resource.last_modified, datetime.datetime)
+    assert resource.etag is None  # Not implemented yet..
+    assert resource.content_type == 'application/json'
 
 
-def test_open_http_resource():
+def test_open_http_resource(configured_app_ctx):
     resource = open_resource('http://httpbin.org/cache')
     assert isinstance(resource.last_modified, datetime.datetime)
     assert resource.etag is not None
@@ -49,7 +48,7 @@ def test_open_http_resource():
     assert resource.content_type == 'application/zip'
 
 
-def test_save_resource_to_file(tmpdir):
+def test_save_resource_to_file(configured_app_ctx, tmpdir):
     filename = str(tmpdir.join('foobar.json'))
 
     resource = open_resource('http://httpbin.org/cache')
@@ -59,6 +58,6 @@ def test_save_resource_to_file(tmpdir):
     assert os.lstat(filename).st_size > 100
 
 
-def test_open_unsupported_url():
+def test_open_unsupported_url(configured_app_ctx):
     with pytest.raises(ResourceAccessFailure):
         open_resource('invalid://foobar')
