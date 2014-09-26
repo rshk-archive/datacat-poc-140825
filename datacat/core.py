@@ -55,6 +55,8 @@ def make_config():
 
 
 def load_plugins(app):
+    from datacat.utils.plugin_manager import PluginManager
+
     plugins = []
     for name in app.config['PLUGINS']:
         # Instantiate plugin class
@@ -65,7 +67,7 @@ def load_plugins(app):
         # Setup the plugin
         plugin.setup(app)
 
-    return plugins
+    return PluginManager(plugins)
 
 
 def finalize_app(app):
