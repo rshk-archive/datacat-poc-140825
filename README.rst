@@ -14,7 +14,14 @@ Project status
 
 **Travis CI build**
 
+Branch: master
+
 .. image:: https://travis-ci.org/rshk/datacat-poc-140825.svg?branch=master
+    :target: https://travis-ci.org/rshk/datacat-poc-140825
+
+Branch: develop
+
+.. image:: https://travis-ci.org/rshk/datacat-poc-140825.svg?branch=develop
     :target: https://travis-ci.org/rshk/datacat-poc-140825
 
 
