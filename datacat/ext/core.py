@@ -23,8 +23,8 @@ def _make_plugins_make_dataset_metadata(dataset_id, config):
     """
 
     metadata = {}
-    for plugin in current_app.plugins:
-        plugin.call_hook('make_dataset_metadata', dataset_id, config, metadata)
+    current_app.plugins.call_hook(
+        'make_dataset_metadata', dataset_id, config, metadata)
     metadata['id'] = dataset_id
     return metadata
 

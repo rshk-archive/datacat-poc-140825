@@ -247,8 +247,7 @@ def post_dataset_index():
         """, dict(conf=json.dumps(data), mtime=datetime.datetime.utcnow()))
         dataset_id = cur.fetchone()[0]
 
-    for plugin in current_app.plugins:
-        plugin.call_hook('dataset_create', dataset_id, data)
+    current_app.plugins.call_hook('dataset_create', dataset_id, data)
 
     # Last, retun 201 + Location: header
     location = url_for('.get_dataset_configuration', dataset_id=dataset_id)
@@ -277,8 +276,7 @@ def _update_dataset_record(dataset_id, fields):
     with db, db.cursor() as cur:
         cur.execute(query, fields)
 
-    for plugin in current_app.plugins:
-        plugin.call_hook('dataset_update', dataset_id, _configuration)
+    current_app.plugins.call_hook('dataset_update', dataset_id, _configuration)
 
 
 @admin_bp.route('/dataset/<int:dataset_id>', methods=['GET'])
@@ -315,7 +313,6 @@ def delete_dataset_configuration(dataset_id):
         query = querybuilder.delete('dataset')
         cur.execute(query, dict(id=dataset_id))
 
-    for plugin in current_app.plugins:
-        plugin.call_hook('dataset_delete', dataset_id)
+    current_app.plugins.call_hook('dataset_delete', dataset_id)
 
     return '', 200
