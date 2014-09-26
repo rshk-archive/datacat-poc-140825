@@ -1,6 +1,8 @@
 from collections import defaultdict
 from flask import Blueprint
 
+from datacat.utils.plugin_manager import HookExecutionResult
+
 
 class Plugin(object):
     def __init__(self, import_name):
@@ -110,6 +112,17 @@ class Plugin(object):
 
     def call_hook(self, hook_type, *a, **kw):
         """
+        Synchronous wrapper for :py:meth:`call_hook_async`, returning
+        results in a list.
+
+        This is meant for hooks that have no need to iterate over the
+        results (and otherwise the hooks would never be called).
+        """
+
+        return list(self.call_hook_async(hook_type, *a, **kw))
+
+    def call_hook_async(self, hook_type, *a, **kw):
+        """
         Helper function to call all the handlers for a given hook
         type in this plugin.
 
@@ -120,7 +133,18 @@ class Plugin(object):
 
         .. todo:: Make this a generator -> update tests
         """
-        return [hook(*a, **kw) for hook in self._hooks.get(hook_type, [])]
+
+        hook_handlers = self.get_hook_handlers(hook_type)
+        for handler in hook_handlers:
+            exception = result = None
+            try:
+                result = handler(*a, **kw)
+            except Exception as e:
+                exception = e
+            yield HookExecutionResult(self, result, exception)
+
+    def get_hook_handlers(self, hook_type):
+        return self._hooks.get(hook_type, [])
 
     def route(self, *a, **kw):
         """
