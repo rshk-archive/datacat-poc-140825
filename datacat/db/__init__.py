@@ -7,6 +7,8 @@ import psycopg2
 import psycopg2.extras
 from werkzeug.local import LocalProxy
 
+from .schema import ALL_TABLES
+
 
 def connect(database, user=None, password=None, host='localhost', port=5432):
     conn = psycopg2.connect(database=database, user=user, password=password,
@@ -35,27 +37,8 @@ def create_tables(conn):
     # ------------------------------------------------------------
 
     with conn.cursor() as cur:
-        cur.execute("""
-        CREATE TABLE info (
-            key CHARACTER VARYING (256) PRIMARY KEY,
-            value TEXT);
-
-        CREATE TABLE dataset (
-            id SERIAL PRIMARY KEY,
-            configuration JSON,
-            ctime TIMESTAMP WITHOUT TIME ZONE,
-            mtime TIMESTAMP WITHOUT TIME ZONE);
-
-        CREATE TABLE resource (
-            id SERIAL PRIMARY KEY,
-            metadata JSON,
-            auto_metadata JSON,
-            mimetype CHARACTER VARYING (128),
-            data_oid INTEGER,
-            ctime TIMESTAMP WITHOUT TIME ZONE,
-            mtime TIMESTAMP WITHOUT TIME ZONE,
-            hash VARCHAR(128));
-        """)
+        for table in ALL_TABLES:
+            cur.execute(table.get_create_sql())
 
 
 def drop_tables(conn):
@@ -63,11 +46,8 @@ def drop_tables(conn):
         raise ValueError("Was expecting a connection with autocommit on")
 
     with conn.cursor() as cur:
-        cur.execute("""
-        DROP TABLE info;
-        DROP TABLE dataset;
-        DROP TABLE resource;
-        """)
+        for table in reversed(ALL_TABLES):
+            cur.execute(table.get_drop_sql())
 
 
 def _cached(key_name):
@@ -79,22 +59,6 @@ def _cached(key_name):
             return getattr(g, key_name)
         return wrapped
     return decorator
-
-
-# def get_db():
-#     from flask import current_app
-#     if not hasattr(g, 'database'):
-#         g.database = connect(**current_app.config['DATABASE'])
-#         g.database.autocommit = False
-#     return g.database
-
-
-# def get_admin_db():
-#     from flask import current_app
-#     if not hasattr(g, 'admin_database'):
-#         g.admin_database = connect(**current_app.config['DATABASE'])
-#         g.admin_database.autocommit = True
-#     return g.admin_database
 
 
 @_cached('_database')
